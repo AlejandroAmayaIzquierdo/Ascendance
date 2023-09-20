@@ -30,9 +30,15 @@ public abstract class Entity : DrawableGameComponent
         this.texture = Texture2D.FromStream(GraphicsDevice, fileStream);
         fileStream.Dispose();
     }
-    public virtual void Draw(GameTime gameTime, SpriteBatch _spriteBatch)
+    public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
     {
         if (texture != null)
-            _spriteBatch.Draw(texture, position, Color.White);
+        {
+            // Define the destination rectangle for drawing the entity
+            Rectangle destinationRectangle = new Rectangle((int)position.X, (int)position.Y, 16, 16);
+
+            spriteBatch.Draw(texture, destinationRectangle, Color.White);
+        }
     }
+
 }

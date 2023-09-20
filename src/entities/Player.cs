@@ -10,9 +10,9 @@ namespace nx.entity;
 class Player : Entity
 {
 
-    private const float SPEED = 300.0f;
+    private const float SPEED = 200.0f;
     private const float GRAVITY = -9.81f;
-    private const float GROUND_LEVEL = 552.0f;
+    private const float GROUND_LEVEL = 240.0f;
 
     protected Vector2 velocity;
     protected float velocityGoal;
@@ -66,7 +66,7 @@ class Player : Entity
         {
             if (isJumping)
             {
-                velocity.Y -= (float)Math.Sqrt(1f * -2f * GRAVITY);
+                velocity.Y -= (float)Math.Sqrt(0.5f * -2f * GRAVITY);
             }
             else
             {
