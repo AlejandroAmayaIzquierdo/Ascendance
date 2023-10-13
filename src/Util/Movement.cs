@@ -1,4 +1,5 @@
 ﻿
+using System;
 using Microsoft.Xna.Framework;
 
 namespace nx.util;
@@ -13,4 +14,8 @@ public class MovementUtility
         return MathHelper.Lerp(fcurrent, fgoal, t);
     }
 
+    public static bool isCloseEnough(double input1, double input2, double deviation)
+    {
+        return Math.Abs(input1 - input2) <= deviation;
+    }
 }

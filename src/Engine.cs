@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using nx.entity;
 using nx.tile;
+using nx.world;
 using SharpMath2;
 using TiledSharp;
 
@@ -25,20 +26,13 @@ public class Engine : Game
 
     public const int SCREEN_CENTER_X = Engine.screenWidth / 2 - (Engine.TILE_SIZE / 2);
     public const int SCREEN_CENTER_Y = Engine.screenheigth / 2 - (Engine.TILE_SIZE / 2);
-    public static Point viewport;
 
+
+    public static Point viewport;
     public GraphicsDeviceManager _graphics;
     public static SpriteBatch SpriteBatch;
-
     private Matrix matrix;
-    private TmxMap map;
-    private TileManager mapManager;
-
-    private CollisionManager collisionManager;
-
-    private Player player;
-
-
+    public World world;
 
     public Engine()
     {
@@ -47,7 +41,7 @@ public class Engine : Game
 
 
         IsMouseVisible = true;
-        this.Initialize();
+        Initialize();
     }
 
     protected override void Initialize()
@@ -72,20 +66,7 @@ public class Engine : Game
     {
         SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-        map = new TmxMap("Content/map.tmx");
-
-
-        FileStream fileStream = new("Content/sheet.png", FileMode.Open);
-        var tileset = Texture2D.FromStream(GraphicsDevice, fileStream);
-        fileStream.Dispose();
-        var tileWidth = map.Tilesets[0].TileWidth;
-        var tileHeight = map.Tilesets[0].TileHeight;
-        var TileSetTilesWide = tileset.Width / tileWidth;
-        mapManager = new TileManager(SpriteBatch, map, tileset, TileSetTilesWide, tileWidth, tileHeight);
-
-        collisionManager = new CollisionManager(map.ObjectGroups["Platforms"]);
-
-        player = Player.GetInstance(this, new Vector2(0, 100), "Content/kevin.png");
+        world = new World(this, WorldData.GetWorld(Worlds.START_LEVEL));
     }
 
     protected override void Update(GameTime gameTime)
@@ -93,24 +74,9 @@ public class Engine : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
+        world.Update(gameTime);
 
 
-
-        //collisionManager.Update();
-
-
-        Vector2 initPos = player.position;
-        player.Update(gameTime);
-        bool isColliding = collisionManager.Update();
-        if (isColliding)
-        {
-            player.position = initPos;
-            player.isGrounded = true;
-        }
-        else
-        {
-            player.isGrounded = false;
-        }
         base.Update(gameTime);
     }
 
@@ -126,9 +92,7 @@ public class Engine : Game
             depthStencilState: null,
             transformMatrix: matrix/*<-This is the main thing*/);
 
-        mapManager.Draw();
-
-        player.Draw(gameTime);
+        world.Draw(gameTime);
 
         SpriteBatch.End();
 

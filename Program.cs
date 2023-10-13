@@ -1,5 +1,10 @@
 ﻿using nx;
 
 
-Engine game = new Engine();
-game.Run();
+internal class Program
+{
+    private static void Main(string[] args)
+    {
+        new Engine().Run();
+    }
+}

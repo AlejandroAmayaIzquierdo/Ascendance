@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using nx.entity;
+using nx.world;
 using TiledSharp;
 
 namespace nx.tile;
@@ -14,17 +15,14 @@ public class TileManager
     private int worldWidth;
     private int worldHeigth;
     private SpriteBatch spriteBatch;
-    TmxMap map;
-    Texture2D tileset;
-    int tilesetTilesWide;
-    int tileWidth;
-    int tileHeight;
+    private TmxMap map;
+    private Texture2D tileset;
+    private int tilesetTilesWide;
+    private int tileWidth;
+    private int tileHeight;
+    private Camera2D mainCamera;
 
-    private Player playerRef;
-
-    private int ViewportCenterY;
-
-    public TileManager(SpriteBatch _spriteBatch, TmxMap _map, Texture2D _tileset, int _tilesetTilesWide, int _tileWidth, int _tileHeight)
+    public TileManager(SpriteBatch _spriteBatch, TmxMap _map, Texture2D _tileset, int _tilesetTilesWide, int _tileWidth, int _tileHeight, Camera2D camera)
 
     {
         spriteBatch = _spriteBatch;
@@ -33,9 +31,7 @@ public class TileManager
         tilesetTilesWide = _tilesetTilesWide;
         tileWidth = _tileWidth;
         tileHeight = _tileHeight;
-        playerRef = Player.GetInstance();
-
-        ViewportCenterY = Engine.viewport.Y / 2;
+        mainCamera = camera;
 
         worldWidth = Engine.TILE_SIZE * maxWorldCol;
         worldHeigth = Engine.TILE_SIZE * maxWorldRow;
@@ -43,26 +39,6 @@ public class TileManager
 
     public void Draw()
     {
-        /*
-        var yOffset = ViewportCenterY - playerRef.position.Y;
-
-        int worldCol = 0;
-        int worldRow = 0;
-
-
-        while (worldCol < maxWorldCol && worldRow < maxWorldRow)
-        {
-            int worldX = worldCol * Engine.TILE_SIZE;
-            int worldY = worldRow * Engine.TILE_SIZE;
-
-            for (int i = 0; i < map.TileLayers[0].Tiles.Count; i++)
-            {
-                //int gid = map.TileLayers[i].Tiles[j].Gid;
-            }
-        }
-        */
-
-
         for (var i = 0; i < map.TileLayers.Count; i++)
         {
             for (var j = 0; j < map.TileLayers[i].Tiles.Count; j++)
@@ -93,7 +69,7 @@ public class TileManager
                     tileset,
                     new Rectangle(
                         worlSpaceX,
-                        (int)(Engine.SCREEN_CENTER_Y - playerRef.position.Y + worlSpaceY),
+                        (int)(Engine.SCREEN_CENTER_Y - mainCamera.position.Y + worlSpaceY),
                         Engine.TILE_SIZE,
                         Engine.TILE_SIZE
                         ),
