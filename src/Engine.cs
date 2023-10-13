@@ -6,19 +6,35 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using nx.entity;
 using nx.tile;
+using SharpMath2;
 using TiledSharp;
 
 namespace nx;
 
 public class Engine : Game
 {
-    private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
+
+    public const int originalTileSize = 16; //16 x 16 tile
+    public const int scale = 2;
+
+    public const int TILE_SIZE = originalTileSize * scale; //48 x 48 tile
+    public const int maxScreenCol = 29;
+    public const int maxScreenRow = 19;
+    public const int screenWidth = TILE_SIZE * maxScreenCol; // 768 pixels
+    public const int screenheigth = TILE_SIZE * maxScreenRow; // 576 pixels
+
+    public const int SCREEN_CENTER_X = Engine.screenWidth / 2 - (Engine.TILE_SIZE / 2);
+    public const int SCREEN_CENTER_Y = Engine.screenheigth / 2 - (Engine.TILE_SIZE / 2);
+    public static Point viewport;
+
+    public GraphicsDeviceManager _graphics;
+    public static SpriteBatch SpriteBatch;
 
     private Matrix matrix;
     private TmxMap map;
     private TileManager mapManager;
-    private List<Rectangle> collisionObjects;
+
+    private CollisionManager collisionManager;
 
     private Player player;
 
@@ -36,23 +52,26 @@ public class Engine : Game
 
     protected override void Initialize()
     {
-        _graphics.PreferredBackBufferWidth = 464 * 2;//Making the window size twice our tilemap size
-        _graphics.PreferredBackBufferHeight = 304 * 2;
+        _graphics.PreferredBackBufferWidth = screenWidth;
+        _graphics.PreferredBackBufferHeight = screenheigth;
         _graphics.ApplyChanges();
+
+
+        viewport = new(screenWidth, screenheigth);
 
         var Width = _graphics.PreferredBackBufferWidth;
         var Height = _graphics.PreferredBackBufferHeight;
         var WindowSize = new Vector2(Width, Height);
-        var mapSize = new Vector2(464, 304);//Our tile map size
+        var mapSize = new Vector2(screenWidth + Engine.TILE_SIZE, screenheigth);
         matrix = Matrix.CreateScale(new Vector3(WindowSize / mapSize, 1));
 
-        Debug.WriteLine(matrix.ToString());
+
         base.Initialize();
     }
-
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
+        SpriteBatch = new SpriteBatch(GraphicsDevice);
+
         map = new TmxMap("Content/map.tmx");
 
 
@@ -62,15 +81,11 @@ public class Engine : Game
         var tileWidth = map.Tilesets[0].TileWidth;
         var tileHeight = map.Tilesets[0].TileHeight;
         var TileSetTilesWide = tileset.Width / tileWidth;
-        mapManager = new TileManager(_spriteBatch, map, tileset, TileSetTilesWide, tileWidth, tileHeight);
+        mapManager = new TileManager(SpriteBatch, map, tileset, TileSetTilesWide, tileWidth, tileHeight);
 
-        collisionObjects = new List<Rectangle>();
-        foreach (var o in map.ObjectGroups["Platforms"].Objects)
-        {
-            collisionObjects.Add(new Rectangle((int)o.X, (int)o.Y, (int)o.Width, (int)o.Height));
-        }
+        collisionManager = new CollisionManager(map.ObjectGroups["Platforms"]);
 
-        player = new(this, new Vector2(0, 0), "Content/kevin.png");
+        player = Player.GetInstance(this, new Vector2(0, 100), "Content/kevin.png");
     }
 
     protected override void Update(GameTime gameTime)
@@ -78,15 +93,31 @@ public class Engine : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        player.Update(gameTime);
 
+
+
+        //collisionManager.Update();
+
+
+        Vector2 initPos = player.position;
+        player.Update(gameTime);
+        bool isColliding = collisionManager.Update();
+        if (isColliding)
+        {
+            player.position = initPos;
+            player.isGrounded = true;
+        }
+        else
+        {
+            player.isGrounded = false;
+        }
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.Black);
-        _spriteBatch.Begin(//All of these need to be here :(
+        SpriteBatch.Begin(//All of these need to be here :(
             SpriteSortMode.Deferred,
             samplerState: SamplerState.PointClamp,
             effect: null,
@@ -97,9 +128,9 @@ public class Engine : Game
 
         mapManager.Draw();
 
-        player.Draw(gameTime, _spriteBatch);
+        player.Draw(gameTime);
 
-        _spriteBatch.End();
+        SpriteBatch.End();
 
         base.Draw(gameTime);
     }

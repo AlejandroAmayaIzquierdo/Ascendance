@@ -9,24 +9,55 @@ namespace nx.entity;
 
 class Player : Entity
 {
+    private static Player instance;
+    private static readonly object lockObject = new object();
 
-    private const float SPEED = 200.0f;
-    private const float GRAVITY = -9.81f;
-    private const float GROUND_LEVEL = 240.0f;
+    private const float SPEED = 350.0f;
+    private const float GRAVITY = -9.81f * 2;
+    private const float JUMP_HEIGHT = 3.0f;
 
-    protected Vector2 velocity;
+    public Vector2 velocity;
     protected float velocityGoal;
 
+    public bool isGrounded = false;
 
-    public Player(Game game, Vector2 position, string texture) : base(game, position, texture)
+    public Vector2 screenPosition;
+
+
+    private Player(Game game, Vector2 position, string texture) : base(game, position, texture)
     {
         velocity = new(0, 0);
         velocityGoal = 0.0f;
+        collisionBounds = new((int)position.X, (int)position.Y, 16, 16);
+        screenPosition = new Vector2(position.X, Engine.SCREEN_CENTER_Y);
     }
 
-    public override void Draw(GameTime gameTime, SpriteBatch _spriteBatch)
+    public static Player GetInstance(Game game, Vector2 position, string texture)
     {
-        base.Draw(gameTime, _spriteBatch);
+        if (instance == null)
+        {
+            lock (lockObject) // Thread-safe locking
+            {
+                if (instance == null)
+                    instance = new Player(game, position, texture);
+            }
+        }
+        return instance;
+    }
+    public static Player GetInstance()
+    {
+        return instance;
+    }
+
+    public override void Draw(GameTime gameTime)
+    {
+        if (texture != null)
+        {
+            Rectangle destinationRectangle = new Rectangle((int)screenPosition.X, (int)screenPosition.Y, Engine.TILE_SIZE, Engine.TILE_SIZE);
+
+
+            Engine.SpriteBatch.Draw(texture, destinationRectangle, Color.White);
+        }
     }
     public override void Update(GameTime gameTime)
     {
@@ -36,18 +67,18 @@ class Player : Entity
 
         if (kstate.IsKeyDown(Keys.D))
         {
-            if (isGrounded())
-                velocityGoal = 1;
+            //if (isGrounded)
+            velocityGoal = 1;
         }
         else if (kstate.IsKeyDown(Keys.A))
         {
-            if (isGrounded())
-                velocityGoal = -1;
+            //if (isGrounded)
+            velocityGoal = -1;
         }
         else
         {
-            if (isGrounded())
-                velocityGoal = 0;
+            //if (isGrounded)
+            velocityGoal = 0;
         }
 
         velocity.X = MovementUtility.lerp(velocityGoal, velocity.X, (float)gameTime.ElapsedGameTime.TotalSeconds * 15);
@@ -55,6 +86,12 @@ class Player : Entity
         updateGravity(gameTime, kstate.IsKeyDown(Keys.Space));
 
         position += new Vector2(velocity.X * realSpeed, velocity.Y);
+        screenPosition.X += velocity.X * realSpeed;
+
+        collisionBounds.X = (int)position.X;
+        collisionBounds.Y = (int)position.Y;
+
+        Debug.WriteLine(position);
 
 
         base.Update(gameTime);
@@ -62,23 +99,19 @@ class Player : Entity
 
     public void updateGravity(GameTime gameTime, bool isJumping)
     {
-        if (position.Y >= GROUND_LEVEL)
+        if (!isGrounded) //if (!isGrounded)
         {
+            velocity.Y -= GRAVITY * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        }
+        else
+        {
+            velocity.Y = 0.0f;
+
             if (isJumping)
             {
-                velocity.Y -= (float)Math.Sqrt(0.5f * -2f * GRAVITY);
+                velocity.Y -= (float)Math.Sqrt(JUMP_HEIGHT * -2f * GRAVITY);
             }
-            else
-            {
-                position = new(position.X, GROUND_LEVEL);
-                velocity.Y = 0.0F;
-            }
-
         }
-
-        velocity.Y -= GRAVITY * (float)gameTime.ElapsedGameTime.TotalSeconds;
     }
 
-
-    public bool isGrounded() { return position.Y >= GROUND_LEVEL; }
 }
