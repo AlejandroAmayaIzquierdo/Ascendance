@@ -18,4 +18,8 @@ public class MovementUtility
     {
         return Math.Abs(input1 - input2) <= deviation;
     }
+    public static float Map(float value, float fromSource, float toSource, float fromTarget, float toTarget)
+    {
+        return (value - fromSource) * (toTarget - fromTarget) / (toSource - fromSource) + fromTarget;
+    }
 }

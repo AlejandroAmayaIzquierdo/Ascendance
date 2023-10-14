@@ -27,14 +27,22 @@ public class Camera2D
     public Camera2D setPosition(Vector2 newPos)
     {
         if (behavior == CameraBehavior.FOLLOW)
-            position = newPos;
+        {
+
+            if (newPos.Y <= World.worldHeigth - Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
+                position = newPos;
+            else
+                position.Y = World.worldHeigth - Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE;
+
+        }
 
         return this;
     }
 
     public Camera2D setPosition(float x, float y)
     {
-        position = new Vector2(x, y);
+        if (behavior == CameraBehavior.FOLLOW)
+            position = new Vector2(x, y);
 
         return this;
     }

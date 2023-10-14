@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>D:/alex5/code/monoGames/Ascendance/Content/assets/levels/startLevel/SpriteSheet.png</SourceFile>
-  <SourceTime>2023-09-20T09:17:01.6274517+01:00</SourceTime>
-  <DestFile>D:/alex5/code/monoGames/Ascendance/Content/bin/DesktopGL/assets/levels/startLevel/SpriteSheet.xnb</DestFile>
-  <DestTime>2023-10-14T18:59:29.0488786+01:00</DestTime>
+  <SourceFile>D:/alex5/code/monoGames/Ascendance/Content/assets/levels/startLevel/monochrome_sheet.png</SourceFile>
+  <SourceTime>2021-11-02T18:46:21.039+00:00</SourceTime>
+  <DestFile>D:/alex5/code/monoGames/Ascendance/Content/bin/DesktopGL/assets/levels/startLevel/monochrome_sheet.xnb</DestFile>
+  <DestTime>2023-10-14T18:59:29.0328769+01:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2022-07-26T12:44:56+01:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

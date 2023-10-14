@@ -19,6 +19,8 @@ public class World
     private Player player;
     public Vector2 spawn;
 
+    public static int worldHeigth;
+
     private Camera2D mainCamera;
 
     public World(Game game, WorldData worldData)
@@ -34,6 +36,8 @@ public class World
         Level = new TileManager(Engine.SpriteBatch, map, tileset, TileSetTilesWide, tileWidth, tileHeight, mainCamera);
 
         collisionManager = new CollisionManager(map.ObjectGroups["Platforms"]);
+
+        worldHeigth = map.Height * Engine.TILE_SIZE;
 
         LoadEntities(game, map);
     }

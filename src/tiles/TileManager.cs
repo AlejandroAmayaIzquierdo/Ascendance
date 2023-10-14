@@ -12,8 +12,6 @@ public class TileManager
 {
     private int maxWorldCol = 20;
     private int maxWorldRow = 20;
-    private int worldWidth;
-    private int worldHeigth;
     private SpriteBatch spriteBatch;
     private TmxMap map;
     private Texture2D tileset;
@@ -32,9 +30,6 @@ public class TileManager
         tileWidth = _tileWidth;
         tileHeight = _tileHeight;
         mainCamera = camera;
-
-        worldWidth = Engine.TILE_SIZE * maxWorldCol;
-        worldHeigth = Engine.TILE_SIZE * maxWorldRow;
     }
 
     public void Draw()
@@ -58,6 +53,10 @@ public class TileManager
 
                 int worlSpaceX = j % map.Width * Engine.TILE_SIZE;
                 int worlSpaceY = (int)Math.Floor(j / (double)map.Width) * Engine.TILE_SIZE;
+
+
+                //int worldHeigth = map.Height * Engine.TILE_SIZE;
+                //int screenHeigth = Engine.maxScreenRow * Engine.TILE_SIZE;
 
 
                 if (y < 0 - Engine.TILE_SIZE || y > Engine.viewport.Y + Engine.TILE_SIZE)

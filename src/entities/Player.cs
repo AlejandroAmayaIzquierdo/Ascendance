@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using nx.tile;
 using nx.util;
+using nx.world;
 using SharpMath2;
 
 namespace nx.entity;
@@ -31,7 +32,7 @@ class Player : Entity
         velocity = new(0, 0);
         velocityGoal = 0.0f;
         collisionBounds = new((int)position.X, (int)position.Y, Engine.TILE_SIZE, Engine.TILE_SIZE);
-        screenPosition = new Vector2(position.X, Engine.SCREEN_CENTER_Y);
+        screenPosition = new Vector2(position.X, Engine.screenheigth - World.worldHeigth + position.Y);
 
         engine = (Engine)game;
     }
@@ -57,7 +58,7 @@ class Player : Entity
     {
         if (texture != null)
         {
-            Rectangle destinationRectangle = new Rectangle((int)screenPosition.X, (int)screenPosition.Y, Engine.TILE_SIZE, Engine.TILE_SIZE);
+            Rectangle destinationRectangle = new((int)screenPosition.X, (int)screenPosition.Y, Engine.TILE_SIZE, Engine.TILE_SIZE);
 
 
             Engine.SpriteBatch.Draw(texture, destinationRectangle, Color.White);
@@ -76,8 +77,6 @@ class Player : Entity
                 velocityGoal = 1;
                 direction = DIRECTION.RIGHT;
             }
-
-
         }
         else if (kstate.IsKeyDown(Keys.A))
         {
@@ -86,8 +85,6 @@ class Player : Entity
                 velocityGoal = -1;
                 direction = DIRECTION.LEFT;
             }
-
-
         }
         else
         {
@@ -96,8 +93,6 @@ class Player : Entity
                 velocityGoal = 0;
                 direction = DIRECTION.NONE;
             }
-
-
         }
 
         handleCollision();
@@ -112,8 +107,15 @@ class Player : Entity
         position += new Vector2(velocity.X * realSpeed, velocity.Y);
         screenPosition.X += velocity.X * realSpeed;
 
+        if (position.Y >= World.worldHeigth - Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
+            screenPosition.Y = Engine.screenheigth - World.worldHeigth + position.Y;
+        else
+            screenPosition.Y = Engine.SCREEN_CENTER_Y;
+
         collisionBounds.X = (int)position.X;
         collisionBounds.Y = (int)position.Y;
+
+        Debug.WriteLine(position + " " + screenPosition);
 
         base.Update(gameTime);
     }
@@ -121,10 +123,9 @@ class Player : Entity
     private void handleCollision()
     {
         List<CollisionObject> collisionObjects = engine.world.collisionManager.CheckCollision(this, position);
-        isGrounded = false;
         Vector2 playerCenter = position + new Vector2(collisionBounds.Width / 2, collisionBounds.Height / 2);
 
-
+        isGrounded = false;
 
         if (collisionObjects.Count > 0)
         {
@@ -157,7 +158,7 @@ class Player : Entity
                     else
                     {
                         velocity.Y = 0;
-                        position.Y = ((collisionObject.position.Y * Engine.scale) + minDistanceLine.MaxY);
+                        position.Y = (collisionObject.position.Y * Engine.scale) + minDistanceLine.MaxY;
                     }
 
                 }
@@ -167,8 +168,8 @@ class Player : Entity
                     velocity.X = 0;
                     if (position.X <= (collisionObject.position.X * Engine.scale))
                     {
-                        position.X = ((collisionObject.position.X * Engine.scale) + minDistanceLine.MinX) - (collisionBounds.Width + 0.1f);
-                        screenPosition.X = ((collisionObject.position.X * Engine.scale) + minDistanceLine.MinX) - (collisionBounds.Width + 0.1f);
+                        position.X = (collisionObject.position.X * Engine.scale) + minDistanceLine.MinX - (collisionBounds.Width + 0.1f);
+                        screenPosition.X = (collisionObject.position.X * Engine.scale) + minDistanceLine.MinX - (collisionBounds.Width + 0.1f);
                     }
                     else
                     {

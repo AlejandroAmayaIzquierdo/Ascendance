@@ -19,8 +19,8 @@ public class Engine : Game
     public const int scale = 2;
 
     public const int TILE_SIZE = originalTileSize * scale; //48 x 48 tile
-    public const int maxScreenCol = 29;
-    public const int maxScreenRow = 19;
+    public const int maxScreenCol = 18;
+    public const int maxScreenRow = 28;
     public const int screenWidth = TILE_SIZE * maxScreenCol; // 768 pixels
     public const int screenheigth = TILE_SIZE * maxScreenRow; // 576 pixels
 
@@ -60,7 +60,7 @@ public class Engine : Game
         var Width = _graphics.PreferredBackBufferWidth;
         var Height = _graphics.PreferredBackBufferHeight;
         var WindowSize = new Vector2(Width, Height);
-        var mapSize = new Vector2(screenWidth + Engine.TILE_SIZE, screenheigth);
+        var mapSize = new Vector2(screenWidth, screenheigth);
         matrix = Matrix.CreateScale(new Vector3(WindowSize / mapSize, 1));
 
 

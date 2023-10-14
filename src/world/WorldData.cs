@@ -32,8 +32,8 @@ public class WorldData
     {
         [Worlds.START_LEVEL] = new WorldData(
                 "start",
-                "Content/assets/levels/startLevel/map.tmx",
-                "assets/levels/startLevel/SpriteSheet"
+                "Content/assets/levels/startLevel/verticalTest.tmx",
+                "assets/levels/startLevel/monochrome_sheet"
             )
     };
 
