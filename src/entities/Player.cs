@@ -14,7 +14,7 @@ class Player : Entity
 {
     private static Player instance;
 
-    protected const string TEXT = "Content/kevin.png";
+    protected const string TEXT = "assets/textures/player/kevin";
     private static readonly object lockObject = new object();
 
     private const float SPEED = 350.0f;
@@ -144,7 +144,7 @@ class Player : Entity
                     }
                 }
 
-                Debug.WriteLine(minDistanceLine.Vertical);
+                //Debug.WriteLine(minDistanceLine.Vertical);
 
                 if (minDistanceLine.Horizontal)
                 {

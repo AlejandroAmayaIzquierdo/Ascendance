@@ -1,0 +1,3 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"D:/alex5/code/monoGames/Ascendance/Content/assets/levels/startLevel/SpriteSheet.png","D:/alex5/code/monoGames/Ascendance/Content/bin/DesktopGL/assets/levels/startLevel/SpriteSheet.xnb","TextureProcessor","Texture2DContent",10314,139349,0,1232028
+"D:/alex5/code/monoGames/Ascendance/Content/assets/textures/player/kevin.png","D:/alex5/code/monoGames/Ascendance/Content/bin/DesktopGL/assets/textures/player/kevin.xnb","TextureProcessor","Texture2DContent",523,9301,0,0016777

@@ -34,9 +34,13 @@ public class Engine : Game
     private Matrix matrix;
     public World world;
 
+    //private Effect _firstShader;
+
+
     public Engine()
     {
         _graphics = new GraphicsDeviceManager(this);
+        _graphics.GraphicsProfile = GraphicsProfile.HiDef;
         Content.RootDirectory = "Content";
 
 
@@ -66,6 +70,9 @@ public class Engine : Game
     {
         SpriteBatch = new SpriteBatch(GraphicsDevice);
 
+        //_firstShader = Content.Load<Effect>("assets/Effects/first-shader");
+
+
         world = new World(this, WorldData.GetWorld(Worlds.START_LEVEL));
     }
 
@@ -83,6 +90,21 @@ public class Engine : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.Black);
+
+        /*
+
+
+        Matrix view = Matrix.Identity;
+
+        int width = GraphicsDevice.Viewport.Width;
+        int height = GraphicsDevice.Viewport.Height;
+        Matrix projection = Matrix.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
+
+        _firstShader.Parameters["view_projection"].SetValue(view * projection);
+
+        */
+
+
         SpriteBatch.Begin(//All of these need to be here :(
             SpriteSortMode.Deferred,
             samplerState: SamplerState.PointClamp,

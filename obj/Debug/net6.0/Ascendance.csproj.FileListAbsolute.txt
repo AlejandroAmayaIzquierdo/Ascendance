@@ -23,3 +23,5 @@ D:\alex5\code\monoGames\Ascendance\obj\Debug\net6.0\refint\Ascendance.dll
 D:\alex5\code\monoGames\Ascendance\obj\Debug\net6.0\Ascendance.pdb
 D:\alex5\code\monoGames\Ascendance\obj\Debug\net6.0\Ascendance.genruntimeconfig.cache
 D:\alex5\code\monoGames\Ascendance\obj\Debug\net6.0\ref\Ascendance.dll
+D:\alex5\code\monoGames\Ascendance\bin\Debug\net6.0\Content\assets\levels\startLevel\SpriteSheet.xnb
+D:\alex5\code\monoGames\Ascendance\bin\Debug\net6.0\Content\assets\textures\player\kevin.xnb

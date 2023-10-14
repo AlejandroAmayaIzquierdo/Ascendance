@@ -21,16 +21,11 @@ public class World
 
     private Camera2D mainCamera;
 
-
     public World(Game game, WorldData worldData)
     {
         TmxMap map = new TmxMap(worldData.mapUri);
 
-        FileStream fileStream = new(worldData.tileSetUri, FileMode.Open);
-        var tileset = Texture2D.FromStream(game.GraphicsDevice, fileStream);
-        fileStream.Dispose();
-
-        //Texture2D.FromFile(game.GraphicsDevice, worldData.tileSetUri);
+        var tileset = game.Content.Load<Texture2D>(worldData.tileSetUri);
 
         var tileWidth = map.Tilesets[0].TileWidth;
         var tileHeight = map.Tilesets[0].TileHeight;

@@ -22,20 +22,18 @@ public class WorldData
 
 
 
-    public WorldData(string name, string mapUri, string tileSetUri, Vector2 spawn)
+    public WorldData(string name, string mapUri, string tileSetUri)
     {
         this.name = name;
         this.mapUri = mapUri;
         this.tileSetUri = tileSetUri;
-        this.spawn = spawn;
     }
     private static readonly Dictionary<Worlds, WorldData> data = new Dictionary<Worlds, WorldData>
     {
         [Worlds.START_LEVEL] = new WorldData(
                 "start",
-                "Content/map.tmx",
-                "Content/sheet.png",
-                new Vector2(0, 416)
+                "Content/assets/levels/startLevel/map.tmx",
+                "assets/levels/startLevel/SpriteSheet"
             )
     };
 

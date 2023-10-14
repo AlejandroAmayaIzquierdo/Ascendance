@@ -35,11 +35,7 @@ public abstract class Entity : DrawableGameComponent
     }
     public Entity(Game game, Vector2 position, string textureURI, bool isCollider = false) : base(game)
     {
-
-
-        FileStream fileStream = new(textureURI, FileMode.Open);
-        Texture2D text = Texture2D.FromStream(GraphicsDevice, fileStream);
-        fileStream.Dispose();
+        Texture2D text = game.Content.Load<Texture2D>(textureURI);
 
         InitializeEntity(position, text, isCollider);
     }
