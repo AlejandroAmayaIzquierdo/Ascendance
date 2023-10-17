@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFile>D:/alex5/code/monoGames/Ascendance/Content/assets/Effects/first-shader.fx</SourceFile>
+  <SourceTime>2023-10-15T16:14:30.2930868+01:00</SourceTime>
+  <DestFile>D:/alex5/code/monoGames/Ascendance/Content/bin/DesktopGL/assets/Effects/first-shader.xnb</DestFile>
+  <DestTime>2023-10-17T19:00:55.9633041+01:00</DestTime>
+  <Importer>EffectImporter</Importer>
+  <ImporterTime>2022-07-26T12:44:56+01:00</ImporterTime>
+  <Processor>EffectProcessor</Processor>
+  <ProcessorTime>2022-07-26T12:44:56+01:00</ProcessorTime>
+  <Parameters>
+    <Key>DebugMode</Key>
+    <Value>Optimize</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput />
+</PipelineBuildEvent>

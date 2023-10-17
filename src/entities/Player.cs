@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using nx.animation;
 using nx.tile;
 using nx.util;
 using nx.world;
@@ -20,11 +21,19 @@ class Player : Entity
 
     private const float SPEED = 350.0f;
     private const float GRAVITY = -9.81f * 2;
-    private const float JUMP_HEIGHT = 3.5f;
+    private const float MAX_JUMP_HEIGHT = 3.5f;
+
+    private const float DECREES_VELOCITY_FACTOR = -0.7f;
+
+    private float jumpHeight = 0.5f;
 
     public Vector2 screenPosition;
 
     public Engine engine;
+
+    private float timeOfJumpHeight = 0.0f;
+
+    private SpriteSheetAnimation animation;
 
 
     private Player(Game game, Vector2 position) : base(game, position, TEXT, true)
@@ -35,6 +44,14 @@ class Player : Entity
         screenPosition = new Vector2(position.X, Engine.screenheigth - World.worldHeigth + position.Y);
 
         engine = (Engine)game;
+
+        animation = new SpriteSheetAnimation(
+            this,
+            game.Content.Load<Texture2D>("assets/textures/nude/Tiny16_Nude"),
+            5
+        );
+
+        animation.Init(0);
     }
 
     public static Player GetInstance(Game game, Vector2 position)
@@ -58,17 +75,21 @@ class Player : Entity
     {
         if (texture != null)
         {
-            Rectangle destinationRectangle = new((int)screenPosition.X, (int)screenPosition.Y, Engine.TILE_SIZE, Engine.TILE_SIZE);
+            //Rectangle destinationRectangle = new((int)screenPosition.X, (int)screenPosition.Y, Engine.TILE_SIZE, Engine.TILE_SIZE);
 
 
-            Engine.SpriteBatch.Draw(texture, destinationRectangle, Color.White);
+            //Engine.SpriteBatch.Draw(texture, destinationRectangle, Color.White);
         }
+        Rectangle destinationRectangle = new((int)screenPosition.X, (int)screenPosition.Y, Engine.TILE_SIZE, Engine.TILE_SIZE);
+
+
+        animation.Draw(destinationRectangle);
     }
     public override void Update(GameTime gameTime)
     {
         var kstate = Keyboard.GetState();
 
-        bool isJumping = kstate.IsKeyDown(Keys.Space);
+        bool isSpaceBarPress = kstate.IsKeyDown(Keys.Space);
 
         if (kstate.IsKeyDown(Keys.D))
         {
@@ -76,7 +97,9 @@ class Player : Entity
             {
                 velocityGoal = 1;
                 direction = DIRECTION.RIGHT;
+                animation.SetAnimation(2);
             }
+
         }
         else if (kstate.IsKeyDown(Keys.A))
         {
@@ -84,7 +107,9 @@ class Player : Entity
             {
                 velocityGoal = -1;
                 direction = DIRECTION.LEFT;
+                animation.SetAnimation(1);
             }
+
         }
         else
         {
@@ -99,7 +124,7 @@ class Player : Entity
 
         moveX(gameTime);
 
-        updateGravity(gameTime, isJumping);
+        updateGravity(gameTime, isSpaceBarPress);
 
 
         float realSpeed = SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -115,7 +140,9 @@ class Player : Entity
         collisionBounds.X = (int)position.X;
         collisionBounds.Y = (int)position.Y;
 
-        Debug.WriteLine(position + " " + screenPosition);
+        //Debug.WriteLine(position);
+
+        animation.Update(gameTime);
 
         base.Update(gameTime);
     }
@@ -145,8 +172,6 @@ class Player : Entity
                     }
                 }
 
-                //Debug.WriteLine(minDistanceLine.Vertical);
-
                 if (minDistanceLine.Horizontal)
                 {
                     if (position.Y <= collisionObject.position.Y * Engine.scale)
@@ -164,8 +189,8 @@ class Player : Entity
                 }
                 else if (minDistanceLine.Vertical)
                 {
-                    velocityGoal = 0;
-                    velocity.X = 0;
+                    velocityGoal *= DECREES_VELOCITY_FACTOR;
+                    velocity.X *= -1;
                     if (position.X <= (collisionObject.position.X * Engine.scale))
                     {
                         position.X = (collisionObject.position.X * Engine.scale) + minDistanceLine.MinX - (collisionBounds.Width + 0.1f);
@@ -179,8 +204,22 @@ class Player : Entity
 
                 }
             }
+        }
 
+        if (position.X <= 0)
+        {
+            position.X = 0;
+            screenPosition.X = 0;
+            velocityGoal *= DECREES_VELOCITY_FACTOR;
+            velocity.X *= -1;
 
+        }
+        else if (position.X >= Engine.screenWidth - collisionBounds.Width)
+        {
+            position.X = Engine.screenWidth - collisionBounds.Width;
+            screenPosition.X = Engine.screenWidth - collisionBounds.Width;
+            velocityGoal *= DECREES_VELOCITY_FACTOR;
+            velocity.X *= -1;
         }
     }
 
@@ -189,22 +228,39 @@ class Player : Entity
         velocity.X = MovementUtility.lerp(velocityGoal, velocity.X, (float)gameTime.ElapsedGameTime.TotalSeconds * 15);
     }
 
-    private void updateGravity(GameTime gameTime, bool isJumping)
+    private void updateGravity(GameTime gameTime, bool isSpaceBarPress)
     {
         if (!isGrounded)
         {
             velocity.Y -= GRAVITY * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            jumpHeight = 0;
         }
         else
         {
             velocity.Y = 0.0f;
 
-            if (isJumping)
+            if (isSpaceBarPress)
             {
-                isGrounded = false;
-                velocity.Y -= (float)Math.Sqrt(JUMP_HEIGHT * -2f * GRAVITY);
-
+                velocityGoal = 0;
+                velocity.X = 0;
             }
+
+
+            if (isSpaceBarPress && jumpHeight <= MAX_JUMP_HEIGHT && timeOfJumpHeight >= 0.05f)
+            {
+                jumpHeight += 0.25f;
+                timeOfJumpHeight = 0.0f;
+            }
+
+            if (!isSpaceBarPress && jumpHeight > 0.5f)
+            {
+                velocity.Y -= (float)Math.Sqrt(jumpHeight * -2f * GRAVITY);
+                isGrounded = false;
+            }
+
+            timeOfJumpHeight += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            //Debug.WriteLine(jumpHeight + " | " + direction);
         }
     }
 

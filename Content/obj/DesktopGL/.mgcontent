@@ -4,11 +4,17 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
+    <File>D:/alex5/code/monoGames/Ascendance/Content/assets/Effects/first-shader.fx</File>
+    <File>D:/alex5/code/monoGames/Ascendance/Content/assets/Effects/pixelate.fx</File>
     <File>D:/alex5/code/monoGames/Ascendance/Content/assets/levels/startLevel/monochrome_sheet.png</File>
     <File>D:/alex5/code/monoGames/Ascendance/Content/assets/levels/startLevel/SpriteSheet.png</File>
+    <File>D:/alex5/code/monoGames/Ascendance/Content/assets/textures/nude/Tiny16_Nude.png</File>
     <File>D:/alex5/code/monoGames/Ascendance/Content/assets/textures/player/kevin.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

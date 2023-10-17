@@ -34,7 +34,7 @@ public class Engine : Game
     private Matrix matrix;
     public World world;
 
-    //private Effect _firstShader;
+    private Effect _firstShader;
 
 
     public Engine()
@@ -70,7 +70,7 @@ public class Engine : Game
     {
         SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-        //_firstShader = Content.Load<Effect>("assets/Effects/first-shader");
+        _firstShader = Content.Load<Effect>("assets/Effects/pixelate");
 
 
         world = new World(this, WorldData.GetWorld(Worlds.START_LEVEL));
@@ -90,20 +90,6 @@ public class Engine : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.Black);
-
-        /*
-
-
-        Matrix view = Matrix.Identity;
-
-        int width = GraphicsDevice.Viewport.Width;
-        int height = GraphicsDevice.Viewport.Height;
-        Matrix projection = Matrix.CreateOrthographicOffCenter(0, width, height, 0, 0, 1);
-
-        _firstShader.Parameters["view_projection"].SetValue(view * projection);
-
-        */
-
 
         SpriteBatch.Begin(//All of these need to be here :(
             SpriteSortMode.Deferred,

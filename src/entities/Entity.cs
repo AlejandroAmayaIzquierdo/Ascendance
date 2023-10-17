@@ -27,6 +27,8 @@ public abstract class Entity : DrawableGameComponent
     public Vector2 velocity;
     protected float velocityGoal;
 
+    public float animationDuration;
+
     public DIRECTION direction;
     public bool isGrounded = false;
     public Entity(Game game, Vector2 position, Texture2D texture, bool isCollider = false) : base(game)
