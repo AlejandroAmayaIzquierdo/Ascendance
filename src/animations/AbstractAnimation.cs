@@ -116,13 +116,8 @@ public abstract class AbstractAnimation : IAnimation
     {
         SpriteEffect = effect;
     }
-    public void Flip()
+    public bool isFlip()
     {
-        if (SpriteEffect == SpriteEffects.FlipHorizontally)
-        {
-            SpriteEffect = SpriteEffects.None;
-            return;
-        }
-        SpriteEffect = SpriteEffects.None;
+        return SpriteEffect == SpriteEffects.FlipHorizontally;
     }
 }

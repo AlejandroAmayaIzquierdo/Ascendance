@@ -79,7 +79,7 @@
   </object>
  </objectgroup>
  <objectgroup id="3" name="Entities">
-  <object id="2" x="103.834" y="74.3333">
+  <object id="2" x="159.834" y="722.333">
    <properties>
     <property name="type" value="player"/>
    </properties>

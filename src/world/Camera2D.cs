@@ -61,7 +61,7 @@ public class Camera2D
 
     public bool isPastLimitsX(float x)
     {
-        if (x < limits.X /*|| x > limits.X */) //FIXME minLimit is suppose to be max and max is not set correctly. Now works but maybe in other project will not.
+        if (x < limits.X || x > limits.X) //FIXME minLimit is suppose to be max and max is not set correctly. Now works but maybe in other project will not.
             return true;
         return false;
     }

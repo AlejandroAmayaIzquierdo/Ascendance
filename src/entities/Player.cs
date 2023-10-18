@@ -90,6 +90,8 @@ class Player : Entity
     {
         var kstate = Keyboard.GetState();
 
+        Debug.WriteLine(animation.isFlip());
+
         bool isSpaceBarPress = kstate.IsKeyDown(Keys.Space);
 
         if (kstate.IsKeyDown(Keys.D))
@@ -98,8 +100,8 @@ class Player : Entity
             {
                 velocityGoal = 1;
                 direction = DIRECTION.RIGHT;
-                if (direction != DIRECTION.RIGHT)
-                    animation.Flip(SpriteEffects.FlipHorizontally);
+                if (animation.isFlip())
+                    animation.Flip(SpriteEffects.None);
             }
 
         }
@@ -109,8 +111,9 @@ class Player : Entity
             {
                 velocityGoal = -1;
                 direction = DIRECTION.LEFT;
-                if (direction != DIRECTION.LEFT)
+                if (!animation.isFlip())
                     animation.Flip(SpriteEffects.FlipHorizontally);
+
             }
 
         }
