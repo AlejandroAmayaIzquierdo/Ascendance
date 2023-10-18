@@ -78,7 +78,7 @@ public abstract class AbstractAnimation : IAnimation
                 Init();
         }
 
-        Debug.WriteLine(timeAcc);
+        //Debug.WriteLine(timeAcc);
 
         timeAcc += (int)gameTime.ElapsedGameTime.TotalMilliseconds;
     }
@@ -86,9 +86,9 @@ public abstract class AbstractAnimation : IAnimation
     public virtual void Draw(Rectangle rectangle)
     {
         //Vector2 pos = Parent == null ? Offset : Parent.position + Offset;
-        //Engine.SpriteBatch.Draw(GetTexture(), pos, GetTexture().Bounds, Color.White, 0, Origin, Scale, SpriteEffect, 0f);
+        Engine.SpriteBatch.Draw(GetTexture(), rectangle, GetTexture().Bounds, Color.White, 0, Vector2.Zero, SpriteEffect, 0.0f);
 
-        Engine.SpriteBatch.Draw(GetTexture(), rectangle, Color.White);
+        //Engine.SpriteBatch.Draw(GetTexture(), rectangle, Color.White);
     }
 
 
@@ -112,15 +112,17 @@ public abstract class AbstractAnimation : IAnimation
         Running = false;
     }
 
+    public void Flip(SpriteEffects effect = SpriteEffects.FlipHorizontally)
+    {
+        SpriteEffect = effect;
+    }
     public void Flip()
     {
-        if (SpriteEffect == SpriteEffects.None)
-        {
-            SpriteEffect = SpriteEffects.FlipHorizontally;
-        }
-        else
+        if (SpriteEffect == SpriteEffects.FlipHorizontally)
         {
             SpriteEffect = SpriteEffects.None;
+            return;
         }
+        SpriteEffect = SpriteEffects.None;
     }
 }

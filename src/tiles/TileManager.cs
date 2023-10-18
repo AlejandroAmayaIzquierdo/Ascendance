@@ -64,10 +64,12 @@ public class TileManager
                     continue;
                 }
 
+
+
                 spriteBatch.Draw(
                     tileset,
                     new Rectangle(
-                        worlSpaceX,
+                        (int)(Engine.SCREEN_CENTER_X - mainCamera.position.X + worlSpaceX),
                         (int)(Engine.SCREEN_CENTER_Y - mainCamera.position.Y + worlSpaceY),
                         Engine.TILE_SIZE,
                         Engine.TILE_SIZE

@@ -18,9 +18,6 @@ public class WorldData
     public readonly string name;
     public readonly string mapUri;
     public readonly string tileSetUri;
-    public readonly Vector2 spawn;
-
-
 
     public WorldData(string name, string mapUri, string tileSetUri)
     {

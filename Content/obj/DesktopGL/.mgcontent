@@ -10,8 +10,14 @@
     <File>D:/alex5/code/monoGames/Ascendance/Content/assets/levels/startLevel/SpriteSheet.png</File>
     <File>D:/alex5/code/monoGames/Ascendance/Content/assets/textures/nude/Tiny16_Nude.png</File>
     <File>D:/alex5/code/monoGames/Ascendance/Content/assets/textures/player/kevin.png</File>
+    <File>D:/alex5/code/monoGames/Ascendance/Content/assets/textures/player/Luca.png</File>
+    <File>D:/alex5/code/monoGames/Ascendance/Content/assets/textures/player/Luca2.png</File>
+    <File>D:/alex5/code/monoGames/Ascendance/Content/assets/textures/player/Luca3.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

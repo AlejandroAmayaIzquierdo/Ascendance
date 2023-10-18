@@ -15,11 +15,12 @@ public class World
 {
     private TileManager Level;
     public CollisionManager collisionManager;
-    private List<Entity> entities;
+    //private List<Entity> entities;
     private Player player;
     public Vector2 spawn;
 
-    public static int worldHeigth;
+    public static int worldHeight;
+    public static int worldWidth;
 
     private Camera2D mainCamera;
 
@@ -32,12 +33,14 @@ public class World
         var tileWidth = map.Tilesets[0].TileWidth;
         var tileHeight = map.Tilesets[0].TileHeight;
         var TileSetTilesWide = tileset.Width / tileWidth;
-        mainCamera = new Camera2D(worldData.spawn);
+        mainCamera = new Camera2D(Vector2.Zero);
         Level = new TileManager(Engine.SpriteBatch, map, tileset, TileSetTilesWide, tileWidth, tileHeight, mainCamera);
 
         collisionManager = new CollisionManager(map.ObjectGroups["Platforms"]);
 
-        worldHeigth = map.Height * Engine.TILE_SIZE;
+        worldHeight = map.Height * Engine.TILE_SIZE;
+
+        worldWidth = map.Width * Engine.TILE_SIZE;
 
         LoadEntities(game, map);
     }

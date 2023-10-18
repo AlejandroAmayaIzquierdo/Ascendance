@@ -41,17 +41,18 @@ class Player : Entity
         velocity = new(0, 0);
         velocityGoal = 0.0f;
         collisionBounds = new((int)position.X, (int)position.Y, Engine.TILE_SIZE, Engine.TILE_SIZE);
-        screenPosition = new Vector2(position.X, Engine.screenheigth - World.worldHeigth + position.Y);
+        screenPosition = new Vector2(position.X, Engine.screenheigth - World.worldHeight + position.Y);
 
         engine = (Engine)game;
 
         animation = new SpriteSheetAnimation(
             this,
-            game.Content.Load<Texture2D>("assets/textures/nude/Tiny16_Nude"),
+            game.Content.Load<Texture2D>("assets/textures/player/Luca3"),
             5
         );
 
         animation.Init(0);
+
     }
 
     public static Player GetInstance(Game game, Vector2 position)
@@ -97,7 +98,8 @@ class Player : Entity
             {
                 velocityGoal = 1;
                 direction = DIRECTION.RIGHT;
-                animation.SetAnimation(2);
+                if (direction != DIRECTION.RIGHT)
+                    animation.Flip(SpriteEffects.FlipHorizontally);
             }
 
         }
@@ -107,7 +109,8 @@ class Player : Entity
             {
                 velocityGoal = -1;
                 direction = DIRECTION.LEFT;
-                animation.SetAnimation(1);
+                if (direction != DIRECTION.LEFT)
+                    animation.Flip(SpriteEffects.FlipHorizontally);
             }
 
         }
@@ -130,10 +133,11 @@ class Player : Entity
         float realSpeed = SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         position += new Vector2(velocity.X * realSpeed, velocity.Y);
-        screenPosition.X += velocity.X * realSpeed;
 
-        if (position.Y >= World.worldHeigth - Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
-            screenPosition.Y = Engine.screenheigth - World.worldHeigth + position.Y;
+        screenPosition.X = Engine.screenWidth - World.worldWidth + position.X;
+
+        if (position.Y >= World.worldHeight - Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
+            screenPosition.Y = Engine.screenheigth - World.worldHeight + position.Y;
         else
             screenPosition.Y = Engine.SCREEN_CENTER_Y;
 
