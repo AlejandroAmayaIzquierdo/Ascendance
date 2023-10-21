@@ -33,7 +33,8 @@ class Player : Entity
 
     private float timeOfJumpHeight = 0.0f;
 
-    private SpriteSheetAnimation animation;
+    private readonly SpriteGroupAnimation animations;
+
 
 
     private Player(Game game, Vector2 position) : base(game, position, TEXT, true)
@@ -45,13 +46,25 @@ class Player : Entity
 
         engine = (Engine)game;
 
-        animation = new SpriteSheetAnimation(
+
+        var WalkAnimation = new SpriteSheetAnimation(
             this,
+            "Walk",
             game.Content.Load<Texture2D>("assets/textures/player/Luca3"),
+            18,
+            18,
             5
         );
+        var IdleAnimation = new SpriteSheetAnimation(
+            this,
+            "Idle",
+            game.Content.Load<Texture2D>("assets/textures/player/Lucas_idle"),
+            18,
+            18,
+            3
+        );
 
-        animation.Init(0);
+        animations = new("Idle", WalkAnimation, IdleAnimation);
 
     }
 
@@ -84,13 +97,13 @@ class Player : Entity
         Rectangle destinationRectangle = new((int)screenPosition.X, (int)screenPosition.Y, Engine.TILE_SIZE, Engine.TILE_SIZE);
 
 
-        animation.Draw(destinationRectangle);
+
+        animations.Draw(destinationRectangle);
+
     }
     public override void Update(GameTime gameTime)
     {
         var kstate = Keyboard.GetState();
-
-        Debug.WriteLine(animation.isFlip());
 
         bool isSpaceBarPress = kstate.IsKeyDown(Keys.Space);
 
@@ -100,8 +113,8 @@ class Player : Entity
             {
                 velocityGoal = 1;
                 direction = DIRECTION.RIGHT;
-                if (animation.isFlip())
-                    animation.Flip(SpriteEffects.None);
+                if (animations.isFlip())
+                    animations.Flip(SpriteEffects.None);
             }
 
         }
@@ -111,8 +124,8 @@ class Player : Entity
             {
                 velocityGoal = -1;
                 direction = DIRECTION.LEFT;
-                if (!animation.isFlip())
-                    animation.Flip(SpriteEffects.FlipHorizontally);
+                if (!animations.isFlip())
+                    animations.Flip(SpriteEffects.FlipHorizontally);
 
             }
 
@@ -149,7 +162,12 @@ class Player : Entity
 
         //Debug.WriteLine(position);
 
-        animation.Update(gameTime);
+        if (velocityGoal == 0)
+            animations.SetGroupAnimation("Idle");
+        else
+            animations.SetGroupAnimation("Walk");
+
+        animations.Update(gameTime);
 
         base.Update(gameTime);
     }
@@ -196,8 +214,7 @@ class Player : Entity
                 }
                 else if (minDistanceLine.Vertical)
                 {
-                    velocityGoal *= DECREES_VELOCITY_FACTOR;
-                    velocity.X *= -1;
+                    ChangeDirection();
                     if (position.X <= (collisionObject.position.X * Engine.scale))
                     {
                         position.X = (collisionObject.position.X * Engine.scale) + minDistanceLine.MinX - (collisionBounds.Width + 0.1f);
@@ -217,17 +234,26 @@ class Player : Entity
         {
             position.X = 0;
             screenPosition.X = 0;
-            velocityGoal *= DECREES_VELOCITY_FACTOR;
-            velocity.X *= -1;
+            ChangeDirection();
 
         }
         else if (position.X >= Engine.screenWidth - collisionBounds.Width)
         {
             position.X = Engine.screenWidth - collisionBounds.Width;
             screenPosition.X = Engine.screenWidth - collisionBounds.Width;
-            velocityGoal *= DECREES_VELOCITY_FACTOR;
-            velocity.X *= -1;
+            ChangeDirection();
         }
+    }
+
+    private void ChangeDirection()
+    {
+        velocityGoal *= DECREES_VELOCITY_FACTOR;
+        velocity.X *= -1;
+        if (animations.isFlip())
+            animations.Flip(SpriteEffects.None);
+        else
+            animations.Flip(SpriteEffects.FlipHorizontally);
+
     }
 
     private void moveX(GameTime gameTime)

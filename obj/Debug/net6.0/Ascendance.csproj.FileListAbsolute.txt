@@ -32,3 +32,4 @@ D:\alex5\code\monoGames\Ascendance\bin\Debug\net6.0\Content\assets\textures\nude
 D:\alex5\code\monoGames\Ascendance\bin\Debug\net6.0\Content\assets\textures\player\Luca.xnb
 D:\alex5\code\monoGames\Ascendance\bin\Debug\net6.0\Content\assets\textures\player\Luca2.xnb
 D:\alex5\code\monoGames\Ascendance\bin\Debug\net6.0\Content\assets\textures\player\Luca3.xnb
+D:\alex5\code\monoGames\Ascendance\bin\Debug\net6.0\Content\assets\textures\player\Lucas_idle.xnb

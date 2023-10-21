@@ -13,8 +13,10 @@
     <File>D:/alex5/code/monoGames/Ascendance/Content/assets/textures/player/Luca.png</File>
     <File>D:/alex5/code/monoGames/Ascendance/Content/assets/textures/player/Luca2.png</File>
     <File>D:/alex5/code/monoGames/Ascendance/Content/assets/textures/player/Luca3.png</File>
+    <File>D:/alex5/code/monoGames/Ascendance/Content/assets/textures/player/Lucas_idle.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFile>D:/alex5/code/monoGames/Ascendance/Content/assets/textures/player/Luca3.png</SourceFile>
-  <SourceTime>2023-10-18T16:35:58.8849999+01:00</SourceTime>
+  <SourceTime>2023-10-18T16:53:04.2710493+01:00</SourceTime>
   <DestFile>D:/alex5/code/monoGames/Ascendance/Content/bin/DesktopGL/assets/textures/player/Luca3.xnb</DestFile>
-  <DestTime>2023-10-18T16:36:50.5521208+01:00</DestTime>
+  <DestTime>2023-10-21T13:23:00.7067954+01:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2022-07-26T12:44:56+01:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
