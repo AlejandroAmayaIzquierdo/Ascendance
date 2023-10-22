@@ -6,14 +6,16 @@
 ## To-Do List
 - [x] Tile Rendering.
 - [x] 2d Camera.
-- [X] Physics and collisions.
-- [ ] Character movement (In process).
-- [ ] Swich between scenes and levels.
-- [ ] More levels.
+- [X] Physics and collisions (Could be improve).
+- [x] Character movement (Could be improve).
 - [ ] Diferent types of platforms (icy,snow,mud,slime,etc..).
-- [ ] NPCs (maybe the can be usefull to the player).
-- [ ] UI.
-- [ ] Sings.
+- [ ] More levels.
+- [ ] Swich between scenes and levels.
+- [ ] NPCs (Just to make fun of you like jump king).
+- [ ] UI (The most minimalist as possible).
+- [ ] Sings (Like when players talk to you).
+- [ ] Timer.
+- [ ] Records on cloud.
 
 ## Contributing
 If you'd like to contribute to the development of **Ascendance**, please feel free to fork the repository and submit a pull request with your changes.
