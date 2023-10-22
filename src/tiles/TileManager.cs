@@ -14,22 +14,22 @@ public class TileManager
     private int maxWorldRow = 20;
     private SpriteBatch spriteBatch;
     private TmxMap map;
-    private Texture2D tileset;
-    private int tilesetTilesWide;
+    private Texture2D tileSet;
+    private int tileSetTilesWide;
     private int tileWidth;
     private int tileHeight;
     private Camera2D mainCamera;
 
-    public TileManager(SpriteBatch _spriteBatch, TmxMap _map, Texture2D _tileset, int _tilesetTilesWide, int _tileWidth, int _tileHeight, Camera2D camera)
-
+    public TileManager(SpriteBatch _spriteBatch, TmxMap _map, Texture2D _tileset, int _tileSetTilesWide, int _tileWidth, int _tileHeight, Camera2D camera)
     {
-        spriteBatch = _spriteBatch;
         map = _map;
-        tileset = _tileset;
-        tilesetTilesWide = _tilesetTilesWide;
+        tileSet = _tileset;
+        mainCamera = camera;
         tileWidth = _tileWidth;
         tileHeight = _tileHeight;
-        mainCamera = camera;
+        spriteBatch = _spriteBatch;
+        tileSetTilesWide = _tileSetTilesWide;
+
     }
 
     public void Draw()
@@ -44,39 +44,26 @@ public class TileManager
 
                 int tileFrame = gid - 1;
 
-                //Crop the texture from the tiles
-                int column = tileFrame % tilesetTilesWide;
-                int row = (int)Math.Floor(tileFrame / (double)tilesetTilesWide);
+                int column = tileFrame % tileSetTilesWide;
+                int row = (int)Math.Floor(tileFrame / (double)tileSetTilesWide);
 
                 float y = (float)Math.Floor(j / (double)map.Width) * map.TileHeight;
-                Rectangle tilesetRec = new(tileWidth * column, tileHeight * row, tileWidth, tileHeight);
 
-                int worlSpaceX = j % map.Width * Engine.TILE_SIZE;
-                int worlSpaceY = (int)Math.Floor(j / (double)map.Width) * Engine.TILE_SIZE;
-
-
-                //int worldHeigth = map.Height * Engine.TILE_SIZE;
-                //int screenHeigth = Engine.maxScreenRow * Engine.TILE_SIZE;
+                int worldSpaceX = j % map.Width * Engine.TILE_SIZE;
+                int worldSpaceY = (int)Math.Floor(j / (double)map.Width) * Engine.TILE_SIZE;
 
 
-                if (y < 0 - Engine.TILE_SIZE || y > Engine.viewport.Y + Engine.TILE_SIZE)
+                if (y < 0 - Engine.TILE_SIZE || y > Engine.viewport.Y + Engine.TILE_SIZE || worldSpaceX + Engine.TILE_SIZE < 0 || worldSpaceX > Engine.viewport.X)
                 {
                     continue;
                 }
 
+                Rectangle tileSetRec = new(tileWidth * column, tileHeight * row, tileWidth, tileHeight);
+                Rectangle screenRect = new(worldSpaceX, (int)(Engine.SCREEN_CENTER_Y - mainCamera.position.Y + worldSpaceY), Engine.TILE_SIZE, Engine.TILE_SIZE);
 
 
-                spriteBatch.Draw(
-                    tileset,
-                    new Rectangle(
-                        (int)(Engine.SCREEN_CENTER_X - mainCamera.position.X + worlSpaceX),
-                        (int)(Engine.SCREEN_CENTER_Y - mainCamera.position.Y + worlSpaceY),
-                        Engine.TILE_SIZE,
-                        Engine.TILE_SIZE
-                        ),
-                    tilesetRec,
-                    Color.White
-                );
+                spriteBatch.Draw(tileSet, screenRect, tileSetRec, Color.White);
+
             }
         }
     }

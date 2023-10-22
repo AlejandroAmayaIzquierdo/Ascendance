@@ -14,24 +14,29 @@ namespace nx.entity;
 
 class Player : Entity
 {
+    public Engine engine;
+
     private static Player instance;
 
-    protected const string TEXT = "assets/textures/player/kevin";
     private static readonly object lockObject = new object();
+
+
+    protected const string TEXT = "assets/textures/player/kevin";
 
     private const float SPEED = 350.0f;
     private const float GRAVITY = -9.81f * 2;
+    private const float SLIDING_GRAVITY = -9.81f;
     private const float MAX_JUMP_HEIGHT = 3.5f;
 
     private const float DECREES_VELOCITY_FACTOR = -0.7f;
 
     private float jumpHeight = 0.5f;
+    private float timeOfJumpHeight = 0.0f;
+
+    private bool isSliding = false;
+
 
     public Vector2 screenPosition;
-
-    public Engine engine;
-
-    private float timeOfJumpHeight = 0.0f;
 
     private readonly SpriteGroupAnimation animations;
 
@@ -87,19 +92,9 @@ class Player : Entity
 
     public override void Draw(GameTime gameTime)
     {
-        if (texture != null)
-        {
-            //Rectangle destinationRectangle = new((int)screenPosition.X, (int)screenPosition.Y, Engine.TILE_SIZE, Engine.TILE_SIZE);
-
-
-            //Engine.SpriteBatch.Draw(texture, destinationRectangle, Color.White);
-        }
         Rectangle destinationRectangle = new((int)screenPosition.X, (int)screenPosition.Y, Engine.TILE_SIZE, Engine.TILE_SIZE);
 
-
-
         animations.Draw(destinationRectangle);
-
     }
     public override void Update(GameTime gameTime)
     {
@@ -109,30 +104,23 @@ class Player : Entity
 
         if (kstate.IsKeyDown(Keys.D))
         {
-            if (isGrounded)
-            {
-                velocityGoal = 1;
-                direction = DIRECTION.RIGHT;
-                if (animations.isFlip())
-                    animations.Flip(SpriteEffects.None);
-            }
+            velocityGoal = 1;
+            direction = DIRECTION.RIGHT;
+            if (animations.isFlip())
+                animations.Flip(SpriteEffects.None);
 
         }
         else if (kstate.IsKeyDown(Keys.A))
         {
-            if (isGrounded)
-            {
-                velocityGoal = -1;
-                direction = DIRECTION.LEFT;
-                if (!animations.isFlip())
-                    animations.Flip(SpriteEffects.FlipHorizontally);
-
-            }
+            velocityGoal = -1;
+            direction = DIRECTION.LEFT;
+            if (!animations.isFlip())
+                animations.Flip(SpriteEffects.FlipHorizontally);
 
         }
         else
         {
-            if (isGrounded)
+            if (isGrounded || isSliding)
             {
                 velocityGoal = 0;
                 direction = DIRECTION.NONE;
@@ -202,6 +190,7 @@ class Player : Entity
                     if (position.Y <= collisionObject.position.Y * Engine.scale)
                     {
                         isGrounded = true;
+                        isSliding = false;
                         velocity.Y = 0;
                         position.Y = (collisionObject.position.Y * Engine.scale) - collisionBounds.Height;
                     }
@@ -230,18 +219,22 @@ class Player : Entity
             }
         }
 
-        if (position.X <= 0)
+        if (position.X < 0)
         {
             position.X = 0;
             screenPosition.X = 0;
-            ChangeDirection();
-
+            isSliding = true;
         }
         else if (position.X >= Engine.screenWidth - collisionBounds.Width)
         {
             position.X = Engine.screenWidth - collisionBounds.Width;
             screenPosition.X = Engine.screenWidth - collisionBounds.Width;
-            ChangeDirection();
+        }
+
+        if (isSliding)
+        {
+            position.X = 0;
+            screenPosition.X = 0;
         }
     }
 
@@ -265,36 +258,43 @@ class Player : Entity
     {
         if (!isGrounded)
         {
-            velocity.Y -= GRAVITY * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            velocity.Y -= isSliding ? SLIDING_GRAVITY * (float)gameTime.ElapsedGameTime.TotalSeconds : GRAVITY * (float)gameTime.ElapsedGameTime.TotalSeconds;
             jumpHeight = 0;
         }
         else
         {
             velocity.Y = 0.0f;
 
-            if (isSpaceBarPress)
-            {
-                velocityGoal = 0;
-                velocity.X = 0;
-            }
-
-
-            if (isSpaceBarPress && jumpHeight <= MAX_JUMP_HEIGHT && timeOfJumpHeight >= 0.05f)
-            {
-                jumpHeight += 0.25f;
-                timeOfJumpHeight = 0.0f;
-            }
-
-            if (!isSpaceBarPress && jumpHeight > 0.5f)
-            {
-                velocity.Y -= (float)Math.Sqrt(jumpHeight * -2f * GRAVITY);
-                isGrounded = false;
-            }
-
-            timeOfJumpHeight += (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            //Debug.WriteLine(jumpHeight + " | " + direction);
+            handleJumpHeight(gameTime, isSpaceBarPress);
         }
+
+        Debug.WriteLine(jumpHeight + " | " + direction + " " + isGrounded + " " + isSliding);
+
+    }
+
+    private void handleJumpHeight(GameTime gameTime, bool isSpaceBarPress)
+    {
+        if (isSpaceBarPress)
+        {
+            velocityGoal = 0;
+            velocity.X = 0;
+        }
+
+
+        if (isSpaceBarPress && jumpHeight <= MAX_JUMP_HEIGHT && timeOfJumpHeight >= 0.05f)
+        {
+            jumpHeight += 0.25f;
+            timeOfJumpHeight = 0.0f;
+        }
+
+        if (!isSpaceBarPress && jumpHeight > 0.5f)
+        {
+            velocity.Y -= (float)Math.Sqrt(jumpHeight * -2f * GRAVITY);
+            isGrounded = false;
+            isSliding = false;
+        }
+
+        timeOfJumpHeight += (float)gameTime.ElapsedGameTime.TotalSeconds;
     }
 
 }
