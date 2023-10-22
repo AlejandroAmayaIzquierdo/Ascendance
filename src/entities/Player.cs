@@ -25,12 +25,15 @@ class Player : Entity
 
     private const float SPEED = 350.0f;
     private const float GRAVITY = -9.81f * 2;
+    private const float SLIDING_GRAVITY = -9.81f;
     private const float MAX_JUMP_HEIGHT = 3.5f;
 
     private const float DECREES_VELOCITY_FACTOR = -0.7f;
 
     private float jumpHeight = 0.5f;
     private float timeOfJumpHeight = 0.0f;
+
+    private bool isSliding = false;
 
 
     public Vector2 screenPosition;
@@ -100,31 +103,24 @@ class Player : Entity
 
         if (kstate.IsKeyDown(Keys.D))
         {
-            if (isGrounded)
-            {
-                velocityGoal = 1;
-                direction = DIRECTION.RIGHT;
-                if (animations.isFlip())
-                    animations.Flip(SpriteEffects.None);
-            }
+            velocityGoal = 1;
+            direction = DIRECTION.RIGHT;
+            if (animations.isFlip())
+                animations.Flip(SpriteEffects.None);
+
         }
         else if (kstate.IsKeyDown(Keys.A))
         {
-            if (isGrounded)
-            {
-                velocityGoal = -1;
-                direction = DIRECTION.LEFT;
-                if (!animations.isFlip())
-                    animations.Flip(SpriteEffects.FlipHorizontally);
-            }
+            velocityGoal = -1;
+            direction = DIRECTION.LEFT;
+            if (!animations.isFlip())
+                animations.Flip(SpriteEffects.FlipHorizontally);
+
         }
         else
         {
-            if (isGrounded)
-            {
-                velocityGoal = 0;
-                direction = DIRECTION.NONE;
-            }
+            velocityGoal = 0;
+            direction = DIRECTION.NONE;
         }
 
         handleCollision();
@@ -147,6 +143,8 @@ class Player : Entity
 
         collisionBounds.X = (int)position.X;
         collisionBounds.Y = (int)position.Y;
+
+        //Debug.WriteLine(position);
 
         if (velocityGoal == 0)
             animations.SetGroupAnimation("Idle");
@@ -188,6 +186,7 @@ class Player : Entity
                     if (position.Y <= collisionObject.position.Y * Engine.scale)
                     {
                         isGrounded = true;
+                        isSliding = false;
                         velocity.Y = 0;
                         position.Y = (collisionObject.position.Y * Engine.scale) - collisionBounds.Height;
                     }
@@ -220,13 +219,18 @@ class Player : Entity
         {
             position.X = 0;
             screenPosition.X = 0;
-            ChangeDirection();
+            isSliding = true;
         }
         else if (position.X >= Engine.screenWidth - collisionBounds.Width)
         {
             position.X = Engine.screenWidth - collisionBounds.Width;
             screenPosition.X = Engine.screenWidth - collisionBounds.Width;
-            ChangeDirection();
+        }
+
+        if (isSliding)
+        {
+            position.X = 0;
+            screenPosition.X = 0;
         }
     }
 
@@ -250,7 +254,7 @@ class Player : Entity
     {
         if (!isGrounded)
         {
-            velocity.Y -= GRAVITY * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            velocity.Y -= isSliding ? SLIDING_GRAVITY * (float)gameTime.ElapsedGameTime.TotalSeconds : GRAVITY * (float)gameTime.ElapsedGameTime.TotalSeconds;
             jumpHeight = 0;
         }
         else
@@ -260,7 +264,7 @@ class Player : Entity
             handleJumpHeight(gameTime, isSpaceBarPress);
         }
 
-        //Debug.WriteLine(jumpHeight + " | " + direction + " " + isGrounded);
+        Debug.WriteLine(jumpHeight + " | " + direction + " " + isGrounded + " " + isSliding);
 
     }
 
@@ -283,6 +287,7 @@ class Player : Entity
         {
             velocity.Y -= (float)Math.Sqrt(jumpHeight * -2f * GRAVITY);
             isGrounded = false;
+            isSliding = false;
         }
 
         timeOfJumpHeight += (float)gameTime.ElapsedGameTime.TotalSeconds;
