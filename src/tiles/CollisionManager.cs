@@ -2,32 +2,21 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using nx.entity;
+using nx.entity.Objects;
 using SharpMath2;
 using TiledSharp;
 
 namespace nx.tile;
 
-public enum Collision
+public enum CollisionType
 {
     GROUNDED,
     WALL,
     HEAD,
     NONE
-}
-
-public class CollisionObject
-{
-    public CollisionObject(Vector2 position, Polygon2 shape)
-    {
-        this.position = position;
-        this.shape = shape;
-    }
-    public Vector2 position;
-    public Polygon2 shape;
 }
 
 public class CollisionManager
@@ -46,8 +35,10 @@ public class CollisionManager
             Vector2[] vertices = tmxObjectPoints.Select(p => new Vector2((float)p.X * Engine.scale, (float)p.Y * Engine.scale)).ToArray();
 
 
-            collisionObjects.Add(new CollisionObject(new Vector2((float)o.X, (float)o.Y), new Polygon2(vertices)));
+            var typeObject = o.Properties.FirstOrDefault(e => e.Key == "type").Value ?? "";
+            CollisionObject collisionObject = (CollisionObject)CollisionObject.CreateCollisionObject(typeObject + "CollisionObject", new Vector2((float)o.X, (float)o.Y), new Polygon2(vertices));
 
+            collisionObjects.Add(collisionObject);
         }
     }
 
@@ -71,36 +62,8 @@ public class CollisionManager
                 false
             );
 
-
-            //Debug.WriteLine(entity.position + " " + (collisionPolygon.position * Engine.scale));
-
             if (intersects)
-            {
-                /*
-                //Debug.WriteLine(CalculateAngleBetweenEntityAndPolygon(entity, collisionPolygon));
-                Vector2 centerPolygon = collisionPolygon.shape.Center * Engine.scale;
-                //Vector2 LeftCenterPolygon = new Vector2(centerPolygon.X - (collisionPolygon.shape.LongestAxisLength / 2), collisionPolygon.shape.Center.Y);
-                float side2Length = (float)Math.Sqrt(Math.Pow(centerPolygon.X, 2) + Math.Pow(centerPolygon.Y, 2));
-                Vector2 rightTrianglePoint = new Vector2(centerPolygon.X, centerPolygon.Y + side2Length);
-                float minDistance = float.MaxValue;
-                Line2 minDistanceLine = null;
-
-                foreach (Line2 line in collisionPolygon.shape.Lines)
-                {
-                    float distance = Line2.Distance(line, collisionPolygon.position * Engine.scale, entity.position);
-                    if (distance < minDistance)
-                    {
-                        minDistance = distance;
-                        minDistanceLine = line;
-                    }
-                }
-                Debug.WriteLine(minDistanceLine);
-                */
-
-
                 collisionPolygonsToReturn.Add(collisionPolygon);
-                // You may perform additional collision handling here.
-            }
         }
 
         return collisionPolygonsToReturn;

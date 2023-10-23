@@ -36,6 +36,9 @@ public class Engine : Game
 
     private Effect _firstShader;
 
+    private SpriteFont font;
+    private FrameCounter frameCounter;
+
 
     public Engine()
     {
@@ -62,6 +65,7 @@ public class Engine : Game
         var WindowSize = new Vector2(Width, Height);
         var mapSize = new Vector2(screenWidth, screenheigth);
         matrix = Matrix.CreateScale(new Vector3(WindowSize / mapSize, 1));
+        frameCounter = new();
 
 
         base.Initialize();
@@ -70,10 +74,12 @@ public class Engine : Game
     {
         SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-        _firstShader = Content.Load<Effect>("assets/Effects/pixelate");
+        _firstShader = Content.Load<Effect>("assets/Effects/blackAndWhite");
+        font = Content.Load<SpriteFont>("assets/Fonts/Minecraft");
 
 
         world = new World(this, WorldData.GetWorld(Worlds.START_LEVEL));
+
     }
 
     protected override void Update(GameTime gameTime)
@@ -83,6 +89,7 @@ public class Engine : Game
 
         world.Update(gameTime);
 
+        frameCounter.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
         base.Update(gameTime);
     }
@@ -100,7 +107,11 @@ public class Engine : Game
             depthStencilState: null,
             transformMatrix: matrix/*<-This is the main thing*/);
 
+
         world.Draw(gameTime);
+
+        SpriteBatch.DrawString(font, "FPS: " + frameCounter.CurrentFramesPerSecond.ToString("0.0") + " | " + "AVG: " + frameCounter.AverageFramesPerSecond.ToString("0.0"), Vector2.Zero, Color.White);
+
 
         SpriteBatch.End();
 

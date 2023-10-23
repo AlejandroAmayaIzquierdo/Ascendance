@@ -13,17 +13,24 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin assets/Effects/first-shader.fx
+#begin assets/Effects/blackAndWhite.fx
 /importer:EffectImporter
 /processor:EffectProcessor
-/processorParam:DebugMode=Optimize
-/build:assets/Effects/first-shader.fx
+/processorParam:DebugMode=Auto
+/build:assets/Effects/blackAndWhite.fx
 
 #begin assets/Effects/pixelate.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:assets/Effects/pixelate.fx
+
+#begin assets/Fonts/Minecraft.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:assets/Fonts/Minecraft.spritefont
 
 #begin assets/levels/startLevel/monochrome_sheet.png
 /importer:TextureImporter

@@ -2,3 +2,5 @@
 /.vscode
 /bin/Debug/net6.0
 /obj
+/Content/obj
+/Content/bin

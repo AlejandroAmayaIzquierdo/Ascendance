@@ -6,7 +6,8 @@
 ## To-Do List
 - [x] Tile Rendering.
 - [x] 2d Camera.
-- [X] Physics and collisions (Could be improve).
+- [x] Physics and collisions (Could be improve).
+- [ ] Particle System.
 - [x] Character movement (Could be improve).
 - [ ] Diferent types of platforms (icy,snow,mud,slime,etc..).
 - [ ] More levels.

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using nx.animation;
+using nx.entity.Objects;
 using nx.tile;
 using nx.util;
 using nx.world;
@@ -34,6 +35,8 @@ class Player : Entity
     private float timeOfJumpHeight = 0.0f;
 
     private bool isSliding = false;
+
+    private bool isJumpKingMovementOn = true;
 
 
     public Vector2 screenPosition;
@@ -103,24 +106,36 @@ class Player : Entity
 
         if (kstate.IsKeyDown(Keys.D))
         {
-            velocityGoal = 1;
-            direction = DIRECTION.RIGHT;
-            if (animations.isFlip())
-                animations.Flip(SpriteEffects.None);
+            if (isGrounded && isJumpKingMovementOn)
+            {
+                velocityGoal = 1;
+                direction = DIRECTION.RIGHT;
+                if (animations.isFlip())
+                    animations.Flip(SpriteEffects.None);
+            }
+
 
         }
         else if (kstate.IsKeyDown(Keys.A))
         {
-            velocityGoal = -1;
-            direction = DIRECTION.LEFT;
-            if (!animations.isFlip())
-                animations.Flip(SpriteEffects.FlipHorizontally);
+            if (isGrounded)
+            {
+                velocityGoal = -1;
+                direction = DIRECTION.LEFT;
+                if (!animations.isFlip())
+                    animations.Flip(SpriteEffects.FlipHorizontally);
+            }
+
 
         }
         else
         {
-            velocityGoal = 0;
-            direction = DIRECTION.NONE;
+            if (isGrounded)
+            {
+                velocityGoal = 0;
+                direction = DIRECTION.NONE;
+            }
+
         }
 
         handleCollision();
@@ -167,13 +182,14 @@ class Player : Entity
         {
             foreach (var collisionObject in collisionObjects)
             {
+
                 float minDistance = float.MaxValue;
                 Line2 minDistanceLine = null;
 
 
                 foreach (Line2 line in collisionObject.shape.Lines)
                 {
-                    float distance = Line2.Distance(line, collisionObject.position * Engine.scale, playerCenter);
+                    float distance = Line2.Distance(line, collisionObject.position * Engine.scale, playerCenter); //FIXME min distances are wrong.
                     if (distance < minDistance)
                     {
                         minDistance = distance;
@@ -215,23 +231,13 @@ class Player : Entity
             }
         }
 
-        if (position.X < 0)
-        {
-            position.X = 0;
-            screenPosition.X = 0;
-            isSliding = true;
-        }
-        else if (position.X >= Engine.screenWidth - collisionBounds.Width)
-        {
-            position.X = Engine.screenWidth - collisionBounds.Width;
-            screenPosition.X = Engine.screenWidth - collisionBounds.Width;
-        }
-
+        /*
         if (isSliding)
         {
             position.X = 0;
             screenPosition.X = 0;
         }
+        */
     }
 
     private void ChangeDirection()
