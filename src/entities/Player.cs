@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -149,7 +150,7 @@ class Player : Entity
 
         position += new Vector2(velocity.X * realSpeed, velocity.Y);
 
-        screenPosition.X = Engine.screenWidth - World.worldWidth + position.X;
+        screenPosition.X = Engine.screenWidth - World.worldWidth + position.X - Engine.FULSCREEN_OFFSET_X;
 
         if (position.Y >= World.worldHeight - Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
             screenPosition.Y = Engine.screenheigth - World.worldHeight + position.Y;
@@ -159,7 +160,7 @@ class Player : Entity
         collisionBounds.X = (int)position.X;
         collisionBounds.Y = (int)position.Y;
 
-        //Debug.WriteLine(position);
+
 
         if (velocityGoal == 0)
             animations.SetGroupAnimation("Idle");
@@ -167,6 +168,7 @@ class Player : Entity
             animations.SetGroupAnimation("Walk");
 
         animations.Update(gameTime);
+
 
         base.Update(gameTime);
     }
@@ -270,7 +272,8 @@ class Player : Entity
             handleJumpHeight(gameTime, isSpaceBarPress);
         }
 
-        Debug.WriteLine(jumpHeight + " | " + direction + " " + isGrounded + " " + isSliding);
+        if (Engine.DEBUG.Contains(DEBUG_TYPE.PLAYER))
+            Debug.WriteLine(jumpHeight + " | " + direction + " " + isGrounded + " " + isSliding + " " + position);
 
     }
 

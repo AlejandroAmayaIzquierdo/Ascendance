@@ -10,8 +10,6 @@ namespace nx.tile;
 
 public class TileManager
 {
-    private int maxWorldCol = 20;
-    private int maxWorldRow = 20;
     private SpriteBatch spriteBatch;
     private TmxMap map;
     private Texture2D tileSet;
@@ -52,14 +50,16 @@ public class TileManager
                 int worldSpaceX = j % map.Width * Engine.TILE_SIZE;
                 int worldSpaceY = (int)Math.Floor(j / (double)map.Width) * Engine.TILE_SIZE;
 
-
                 if (y < 0 - Engine.TILE_SIZE || y > Engine.viewport.Y + Engine.TILE_SIZE || worldSpaceX + Engine.TILE_SIZE < 0 || worldSpaceX > Engine.viewport.X)
-                {
                     continue;
-                }
 
                 Rectangle tileSetRec = new(tileWidth * column, tileHeight * row, tileWidth, tileHeight);
-                Rectangle screenRect = new(worldSpaceX, (int)(Engine.SCREEN_CENTER_Y - mainCamera.position.Y + worldSpaceY), Engine.TILE_SIZE, Engine.TILE_SIZE);
+                Rectangle screenRect = new(
+                    (int)(Engine.SCREEN_CENTER_X - mainCamera.position.X + worldSpaceX - Engine.FULSCREEN_OFFSET_X),
+                    (int)(Engine.SCREEN_CENTER_Y - mainCamera.position.Y + worldSpaceY),
+                    Engine.TILE_SIZE,
+                    Engine.TILE_SIZE
+                );
 
 
                 spriteBatch.Draw(tileSet, screenRect, tileSetRec, Color.White);

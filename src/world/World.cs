@@ -66,6 +66,8 @@ public class World
         }
     }
 
+    public Camera2D getMainCamera() { return mainCamera; }
+
     public void Update(GameTime gameTime)
     {
         player.Update(gameTime);

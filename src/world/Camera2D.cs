@@ -16,6 +16,14 @@ public class Camera2D
     public Camera2D(Vector2 pos)
     {
         position = pos;
+        Initialize();
+    }
+
+    public Camera2D(float x, float y) : this(new Vector2(x, y)) { }
+
+
+    public void Initialize()
+    {
         behavior = CameraBehavior.FOLLOW;
 
         float yLimit = World.worldHeight - Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE;
@@ -23,9 +31,6 @@ public class Camera2D
 
         limits = new(xLimit, yLimit);
     }
-    public Camera2D(float x, float y) : this(new Vector2(x, y)) { }
-
-
     public Camera2D move(float x, float y)
     {
         if (behavior != CameraBehavior.FOLLOW)
