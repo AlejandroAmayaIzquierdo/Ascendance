@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using nx.animation;
 using nx.entity.Objects;
+using nx.scene;
 using nx.tile;
 using nx.util;
 using nx.world;
@@ -175,7 +176,8 @@ class Player : Entity
 
     private void handleCollision()
     {
-        List<CollisionObject> collisionObjects = engine.world.collisionManager.CheckCollision(this, position);
+        World worldScene = ((WorldScene)engine.mainScene).world;
+        List<CollisionObject> collisionObjects = worldScene.collisionManager.CheckCollision(this, position);
         Vector2 playerCenter = position + new Vector2(collisionBounds.Width / 2, collisionBounds.Height / 2);
 
         isGrounded = false;

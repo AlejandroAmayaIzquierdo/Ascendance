@@ -7,16 +7,19 @@
 - [x] Tile Rendering.
 - [x] 2d Camera.
 - [x] Physics and collisions (Could be improve).
+- [x] Full screen option.
 - [ ] Particle System.
 - [x] Character movement (Could be improve).
-- [ ] Diferent types of platforms (icy,snow,mud,slime,etc..).
+- [ ] Menus.
+- [ ] Settings.
+- [ ] Switch between scenes and levels.
+- [ ] Different types of platforms (icy,snow,mud,slime,etc..).
 - [ ] More levels.
-- [ ] Swich between scenes and levels.
 - [ ] NPCs (Just to make fun of you like jump king).
 - [ ] UI (The most minimalist as possible).
 - [ ] Sings (Like when players talk to you).
 - [ ] Timer.
-- [ ] Records on cloud.
+- [ ] Leaderboard.
 
 ## Contributing
 If you'd like to contribute to the development of **Ascendance**, please feel free to fork the repository and submit a pull request with your changes.

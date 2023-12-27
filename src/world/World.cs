@@ -22,9 +22,7 @@ public class World
     public static int worldHeight;
     public static int worldWidth;
 
-    private Camera2D mainCamera;
-
-    public World(Game game, WorldData worldData)
+    public World(Game game, WorldData worldData, Camera2D mainCamera)
     {
         TmxMap map = new TmxMap(worldData.mapUri);
 
@@ -33,7 +31,6 @@ public class World
         var tileWidth = map.Tilesets[0].TileWidth;
         var tileHeight = map.Tilesets[0].TileHeight;
         var TileSetTilesWide = tileset.Width / tileWidth;
-        mainCamera = new Camera2D(Vector2.Zero);
         Level = new TileManager(Engine.SpriteBatch, map, tileset, TileSetTilesWide, tileWidth, tileHeight, mainCamera);
 
         collisionManager = new CollisionManager(map.ObjectGroups["Platforms"]);
@@ -66,12 +63,9 @@ public class World
         }
     }
 
-    public Camera2D getMainCamera() { return mainCamera; }
-
     public void Update(GameTime gameTime)
     {
         player.Update(gameTime);
-        mainCamera.setPosition(player.position);
     }
 
     public void Draw(GameTime gameTime)

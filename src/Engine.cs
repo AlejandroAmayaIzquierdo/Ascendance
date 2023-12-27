@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using System.Linq;
 using nx.world;
 using nx.util;
+using nx.scene;
 
 
 namespace nx;
@@ -33,12 +34,13 @@ public class Engine : Game
     public GraphicsDeviceManager _graphics;
     public static SpriteBatch SpriteBatch;
     private Matrix matrix;
-    public World world;
+
+    public IScene mainScene;
 
     private Effect _firstShader;
 
 
-    private SpriteFont font;
+    public SpriteFont font;
     private FrameCounter frameCounter;
 
 
@@ -61,7 +63,7 @@ public class Engine : Game
 
         base.Initialize();
     }
-    private void loadScreenByResolution(int _screenWidth = TILE_SIZE * maxScreenCol, int _screenheigth = TILE_SIZE * maxScreenRow, bool isFullScreen = false)
+    public void loadScreenByResolution(int _screenWidth = TILE_SIZE * maxScreenCol, int _screenheigth = TILE_SIZE * maxScreenRow, bool isFullScreen = false)
     {
         screenWidth = _screenWidth;
         screenheigth = _screenheigth;
@@ -71,8 +73,6 @@ public class Engine : Game
 
         SCREEN_CENTER_X = screenWidth / 2 - (TILE_SIZE / 2);
         SCREEN_CENTER_Y = screenheigth / 2 - (TILE_SIZE / 2);
-
-        Debug.WriteLine(SCREEN_CENTER_X + " " + SCREEN_CENTER_Y);
 
         FULSCREEN_OFFSET_X = isFullScreen ? screenWidth / 2 - World.worldWidth / 2 : 0;
 
@@ -98,8 +98,17 @@ public class Engine : Game
         font = Content.Load<SpriteFont>("assets/Fonts/Minecraft");
 
 
-        world = new World(this, WorldData.GetWorld(Worlds.START_LEVEL));
+        //mainScene = new WorldScene(this, WorldData.GetWorld(Worlds.START_LEVEL));
+        mainScene = new MenuScene(this);
 
+    }
+
+    public void initializeWorld()
+    {
+        mainScene = new WorldScene(this, WorldData.GetWorld(Worlds.START_LEVEL));
+
+        if (mainScene.GetType() == typeof(WorldScene))
+            ((WorldScene)mainScene).getMainCamera().Initialize();
     }
 
     protected override void Update(GameTime gameTime)
@@ -107,7 +116,11 @@ public class Engine : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
+
+
         KeyboardUtil.GetState();
+
+        /*
 
         if (KeyboardUtil.IsKeyPressed(Keys.F, true))
         {
@@ -125,12 +138,14 @@ public class Engine : Game
                 loadScreenByResolution();
 
 
-            world.getMainCamera().Initialize();
+            if (mainScene.GetType() == typeof(WorldScene))
+                ((WorldScene)mainScene).getMainCamera().Initialize();
 
             Debug.WriteLine(SCREEN_CENTER_X);
         }
+        */
 
-        world.Update(gameTime);
+        mainScene.Update(gameTime);
 
         frameCounter.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
@@ -151,7 +166,7 @@ public class Engine : Game
             transformMatrix: matrix/*<-This is the main thing*/);
 
 
-        world.Draw(gameTime);
+        mainScene.Draw(gameTime);
 
         if (DEBUG.Contains(DEBUG_TYPE.SOFTWARE))
         {

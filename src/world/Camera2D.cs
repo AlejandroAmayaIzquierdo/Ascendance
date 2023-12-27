@@ -5,6 +5,12 @@ using nx.entity;
 
 namespace nx.world;
 
+public enum CameraBehavior
+{
+    IDLE,
+    FOLLOW
+}
+
 public class Camera2D
 {
 
@@ -78,8 +84,3 @@ public class Camera2D
     }
 }
 
-public enum CameraBehavior
-{
-    IDLE,
-    FOLLOW
-}
