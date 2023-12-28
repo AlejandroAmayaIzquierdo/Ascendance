@@ -7,7 +7,7 @@ using TiledSharp;
 
 namespace nx.tile;
 
-public class TileManager
+public class TileManager : ITileDrawer
 {
     private SpriteBatch spriteBatch;
     private TmxMap map;

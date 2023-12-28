@@ -98,8 +98,8 @@ public class Engine : Game
         font = Content.Load<SpriteFont>("assets/Fonts/Minecraft");
 
 
-        //mainScene = new WorldScene(this, WorldData.GetWorld(Worlds.START_LEVEL));
-        mainScene = new MenuScene(this);
+        mainScene = new WorldScene(this, WorldData.GetWorld(Worlds.START_LEVEL));
+        // mainScene = new MenuScene(this);
 
     }
 

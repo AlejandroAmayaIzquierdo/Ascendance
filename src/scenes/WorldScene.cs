@@ -10,10 +10,13 @@ public class WorldScene : IScene
     public readonly World world;
     private readonly Camera2D mainCamera;
 
-    public WorldScene(Game game, WorldData worldData)
+    public WorldScene(Game game, WorldData worldData = null)
     {
         mainCamera = new(Vector2.Zero);
-        world = new(game, worldData, mainCamera);
+        if (worldData != null)
+            world = new(game, mainCamera, worldData);
+        else
+            world = new(game, mainCamera, null, WORLD_GENERATION.WAVE_FUNCTION_COLLAPSE);
 
         mainCamera.Initialize();
     }

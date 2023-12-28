@@ -13,7 +13,7 @@ namespace nx.world;
 
 public class World
 {
-    private TileManager Level;
+    private ITileDrawer Level;
     public CollisionManager collisionManager;
     //private List<Entity> entities;
     private Player player;
@@ -22,24 +22,31 @@ public class World
     public static int worldHeight;
     public static int worldWidth;
 
-    public World(Game game, WorldData worldData, Camera2D mainCamera)
+    public World(Game game, Camera2D mainCamera, WorldData worldData = null, WORLD_GENERATION generationType = WORLD_GENERATION.WAVE_FUNCTION_COLLAPSE)
     {
-        TmxMap map = new TmxMap(worldData.mapUri);
+        if (worldData != null)
+        {
+            TmxMap map = new TmxMap(worldData.mapUri);
 
-        var tileset = game.Content.Load<Texture2D>(worldData.tileSetUri);
+            var tileset = game.Content.Load<Texture2D>(worldData.tileSetUri);
 
-        var tileWidth = map.Tilesets[0].TileWidth;
-        var tileHeight = map.Tilesets[0].TileHeight;
-        var TileSetTilesWide = tileset.Width / tileWidth;
-        Level = new TileManager(Engine.SpriteBatch, map, tileset, TileSetTilesWide, tileWidth, tileHeight, mainCamera);
+            var tileWidth = map.Tilesets[0].TileWidth;
+            var tileHeight = map.Tilesets[0].TileHeight;
+            var TileSetTilesWide = tileset.Width / tileWidth;
+            Level = new TileManager(Engine.SpriteBatch, map, tileset, TileSetTilesWide, tileWidth, tileHeight, mainCamera);
 
-        collisionManager = new CollisionManager(map.ObjectGroups["Platforms"]);
+            collisionManager = new CollisionManager(map.ObjectGroups["Platforms"]);
 
-        worldHeight = map.Height * Engine.TILE_SIZE;
+            worldHeight = map.Height * Engine.TILE_SIZE;
 
-        worldWidth = map.Width * Engine.TILE_SIZE;
+            worldWidth = map.Width * Engine.TILE_SIZE;
 
-        LoadEntities(game, map);
+            LoadEntities(game, map);
+        }
+        else
+        {
+            Level = null;
+        }
     }
 
     private void LoadEntities(Game game, TmxMap map)
