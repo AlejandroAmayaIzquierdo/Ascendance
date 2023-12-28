@@ -120,36 +120,44 @@ public class Engine : Game
 
         KeyboardUtil.GetState();
 
-        /*
 
-        if (KeyboardUtil.IsKeyPressed(Keys.F, true))
+        if (KeyboardUtil.IsKeyPressed(Keys.F11, true) ||
+            (
+                (KeyboardUtil.IsKeyPressed(Keys.LeftAlt) || KeyboardUtil.IsKeyPressed(Keys.RightAlt)) &&
+                KeyboardUtil.IsKeyPressed(Keys.Enter)
+            )
+        )
         {
-            _graphics.IsFullScreen = !_graphics.IsFullScreen;
-
-            if (_graphics.IsFullScreen)
-            {
-                GraphicsAdapter adapter = GraphicsAdapter.DefaultAdapter;
-                DisplayMode displayMode = adapter.CurrentDisplayMode;
-
-                loadScreenByResolution(displayMode.Width, displayMode.Height, true);
-
-            }
-            else
-                loadScreenByResolution();
-
-
-            if (mainScene.GetType() == typeof(WorldScene))
-                ((WorldScene)mainScene).getMainCamera().Initialize();
+            ToggleFullScreen();
 
             Debug.WriteLine(SCREEN_CENTER_X);
         }
-        */
 
         mainScene.Update(gameTime);
 
         frameCounter.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
         base.Update(gameTime);
+    }
+
+    public void ToggleFullScreen()
+    {
+        _graphics.IsFullScreen = !_graphics.IsFullScreen;
+
+        if (_graphics.IsFullScreen)
+        {
+            GraphicsAdapter adapter = GraphicsAdapter.DefaultAdapter;
+            DisplayMode displayMode = adapter.CurrentDisplayMode;
+
+            loadScreenByResolution(displayMode.Width, displayMode.Height, true);
+
+        }
+        else
+            loadScreenByResolution();
+
+
+        if (mainScene.GetType() == typeof(WorldScene))
+            ((WorldScene)mainScene).getMainCamera().Initialize();
     }
 
     protected override void Draw(GameTime gameTime)

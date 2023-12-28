@@ -28,7 +28,7 @@ public class KeyboardUtil
     {
         return currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key);
     }
-    public static bool IsKeyPressed(Keys key, bool oneShot)
+    public static bool IsKeyPressed(Keys key, bool oneShot = false)
     {
         if (!oneShot) return currentKeyState.IsKeyDown(key);
         return currentKeyState.IsKeyDown(key) && !previousKeyState.IsKeyDown(key);

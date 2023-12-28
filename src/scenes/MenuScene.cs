@@ -57,18 +57,7 @@ public class MenuScene : IScene
                     engine.Exit();
                     break;
                 case "FullScreen":
-                    engine._graphics.IsFullScreen = !engine._graphics.IsFullScreen;
-                    if (engine._graphics.IsFullScreen)
-                    {
-                        GraphicsAdapter adapter = GraphicsAdapter.DefaultAdapter;
-                        DisplayMode displayMode = adapter.CurrentDisplayMode;
-
-                        engine.loadScreenByResolution(displayMode.Width, displayMode.Height, true);
-                    }
-                    else
-                        engine.loadScreenByResolution();
-
-
+                    engine.ToggleFullScreen();
                     break;
                 default:
                     break;
