@@ -17,7 +17,7 @@ https://github.com/AlejandroAmayaIzquierdo/Ascendance/assets/96839165/ea64869c-2
 - [x] Character movement (Could be improve).
 - [ ] Menus.
 - [ ] Settings.
-- [ ] Switch between scenes and levels.
+- [ ] Switch between scenes and levels. (should be easy).
 - [ ] Different types of platforms (icy,snow,mud,slime,etc..).
 - [ ] More levels.
 - [ ] NPCs (Just to make fun of you like jump king).
