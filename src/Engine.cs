@@ -18,10 +18,10 @@ public class Engine : Game
     public const int scale = 2;
 
     public const int TILE_SIZE = originalTileSize * scale; //48 x 48 tile
-    public const int maxScreenCol = 18;
-    public const int maxScreenRow = 28;
-    public static int screenWidth = TILE_SIZE * maxScreenCol; // 768 pixels
-    public static int screenheigth = TILE_SIZE * maxScreenRow; // 576 pixels
+    public static int MAX_SCREEN_COL = 20;
+    public static int MAX_SCREEN_ROW = 20;
+    public static int screenWidth = TILE_SIZE * MAX_SCREEN_COL; // 768 pixels
+    public static int screenheigth = TILE_SIZE * MAX_SCREEN_ROW; // 576 pixels
 
     public static int SCREEN_CENTER_X = Engine.screenWidth / 2 - (Engine.TILE_SIZE / 2);
     public static int SCREEN_CENTER_Y = Engine.screenheigth / 2 - (Engine.TILE_SIZE / 2);
@@ -57,13 +57,13 @@ public class Engine : Game
 
     protected override void Initialize()
     {
-        loadScreenByResolution();
+        loadScreenByResolution(TILE_SIZE * MAX_SCREEN_COL, TILE_SIZE * MAX_SCREEN_ROW);
         frameCounter = new();
 
 
         base.Initialize();
     }
-    public void loadScreenByResolution(int _screenWidth = TILE_SIZE * maxScreenCol, int _screenheigth = TILE_SIZE * maxScreenRow, bool isFullScreen = false)
+    public void loadScreenByResolution(int _screenWidth, int _screenheigth, bool isFullScreen = false)
     {
         screenWidth = _screenWidth;
         screenheigth = _screenheigth;
@@ -153,7 +153,7 @@ public class Engine : Game
 
         }
         else
-            loadScreenByResolution();
+            loadScreenByResolution(TILE_SIZE * MAX_SCREEN_COL, TILE_SIZE * MAX_SCREEN_ROW);
 
 
         if (mainScene.GetType() == typeof(WorldScene))

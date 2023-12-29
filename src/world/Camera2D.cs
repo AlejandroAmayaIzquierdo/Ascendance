@@ -17,7 +17,7 @@ public class Camera2D
     public Vector2 position;
     public CameraBehavior behavior;
 
-    public Vector2 limits;
+    public Vector2 limits; //TODO separated into minLimit and maxLimit
 
     public Camera2D(Vector2 pos)
     {
@@ -54,12 +54,13 @@ public class Camera2D
         if (behavior == CameraBehavior.FOLLOW)
         {
 
+            //TODO take into consideration min limit and max limit
             float x = isPastLimitsX(newPos.X) ? limits.X : newPos.X;
             float y = isPastLimitsY(newPos.Y) ? limits.Y : newPos.Y;
 
             position = new Vector2(x, y);
 
-            //Debug.WriteLine("Is pass limit " + isPastLimitsX(newPos.X) + " " + x + " " + newPos.X + " " + limits.X);
+            Debug.WriteLine("Is pass limit " + isPastLimitsX(newPos.X) + " " + x + " " + newPos.X + " " + limits.X);
         }
 
         return this;
@@ -78,7 +79,7 @@ public class Camera2D
     }
     public bool isPastLimitsY(float y)
     {
-        if (y < 0 || y >= limits.Y)
+        if (y >= limits.Y) //FIXME error when y < 0
             return true;
         return false;
     }

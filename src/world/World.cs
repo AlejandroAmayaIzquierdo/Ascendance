@@ -35,6 +35,11 @@ public class World
 
         collisionManager = new CollisionManager(map.ObjectGroups["Platforms"]);
 
+        Engine.MAX_SCREEN_COL = map.Width;
+        Engine.MAX_SCREEN_ROW = map.Height;
+
+        ((Engine)game).loadScreenByResolution(Engine.TILE_SIZE * Engine.MAX_SCREEN_COL, Engine.TILE_SIZE * Engine.MAX_SCREEN_ROW);
+
         worldHeight = map.Height * Engine.TILE_SIZE;
 
         worldWidth = map.Width * Engine.TILE_SIZE;
