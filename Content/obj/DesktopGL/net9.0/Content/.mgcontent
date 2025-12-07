@@ -4,14 +4,12 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>/home/nova/Code/Ascendance/Content/assets/levels/startLevel/monochrome_sheet.png</File>
-    <File>/home/nova/Code/Ascendance/Content/assets/levels/startLevel/SpriteSheet.png</File>
+    <File>/home/nova/Code/Ascendance/Content/assets/textures/monochrome_sheet.png</File>
     <File>/home/nova/Code/Ascendance/Content/assets/textures/player/Luca_walk.png</File>
     <File>/home/nova/Code/Ascendance/Content/assets/textures/player/Lucas_idle.png</File>
     <File>/home/nova/Code/Ascendance/Content/assets/textures/BotMaster/BotMaster_idle.png</File>
   </SourceFiles>
   <DestFiles>
-    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

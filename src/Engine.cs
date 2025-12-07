@@ -59,7 +59,7 @@ public class Engine : Game
 
         _firstShader = Content.Load<Effect>("assets/Effects/pixelate");
 
-        world = new World(this, WorldData.GetWorld(Worlds.START_LEVEL));
+        world = new World(this, WorldData.GetWorld(Worlds.LEVEL_1));
     }
 
     protected override void Update(GameTime gameTime)
