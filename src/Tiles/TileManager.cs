@@ -8,36 +8,23 @@ using TiledSharp;
 
 namespace nx.tile;
 
-public class TileManager
+public class TileManager(
+    SpriteBatch _spriteBatch,
+    TmxMap _map,
+    Texture2D _tileset,
+    int _tileSetTilesWide,
+    int _tileWidth,
+    int _tileHeight,
+    Camera2D camera
+)
 {
-    private int maxWorldCol = 20;
-    private int maxWorldRow = 20;
-    private SpriteBatch spriteBatch;
-    private TmxMap map;
-    private Texture2D tileSet;
-    private int tileSetTilesWide;
-    private int tileWidth;
-    private int tileHeight;
-    private Camera2D mainCamera;
-
-    public TileManager(
-        SpriteBatch _spriteBatch,
-        TmxMap _map,
-        Texture2D _tileset,
-        int _tileSetTilesWide,
-        int _tileWidth,
-        int _tileHeight,
-        Camera2D camera
-    )
-    {
-        map = _map;
-        tileSet = _tileset;
-        mainCamera = camera;
-        tileWidth = _tileWidth;
-        tileHeight = _tileHeight;
-        spriteBatch = _spriteBatch;
-        tileSetTilesWide = _tileSetTilesWide;
-    }
+    private SpriteBatch spriteBatch = _spriteBatch;
+    private TmxMap map = _map;
+    private Texture2D tileSet = _tileset;
+    private int tileSetTilesWide = _tileSetTilesWide;
+    private int tileWidth = _tileWidth;
+    private int tileHeight = _tileHeight;
+    private Camera2D mainCamera = camera;
 
     public void Draw()
     {

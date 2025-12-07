@@ -15,8 +15,7 @@ public class World
     private TileManager Level;
     public CollisionManager collisionManager;
 
-    private List<Entity> _entities = [];
-    private Player player;
+    private readonly List<Entity> _entities = [];
     public Vector2 spawn;
 
     public static int worldHeight;
@@ -48,7 +47,7 @@ public class World
 
         collisionManager = new CollisionManager(
             map.ObjectGroups["Platforms"],
-            [.. _entities.Where(e => e is IColider).Cast<IColider>(), player]
+            [.. _entities.Where(e => e is IColider).Cast<IColider>()]
         );
 
         worldHeight = map.Height * Engine.TILE_SIZE;
@@ -66,31 +65,32 @@ public class World
                 continue;
 
             var entityWorldPosition = new Vector2((float)entity.X, (float)entity.Y) * Engine.scale;
-
+            Entity? newEntity = null;
             switch (entity.Properties["type"])
             {
                 case "player":
-                    player = (Player)
+                    newEntity = (Player)
                         Entity.LoadEntityByName(game, Entities.PLAYER, entityWorldPosition);
                     break;
                 case "bot_master":
-                    BotMaster botMaster = (BotMaster)
+                    newEntity = (BotMaster)
                         Entity.LoadEntityByName(game, Entities.BOT_MASTER, entityWorldPosition);
-                    _entities.Add(botMaster);
                     break;
                 default:
                     break;
             }
+
+            if (newEntity is not null)
+                _entities.Add(newEntity);
         }
     }
 
     public void Update(GameTime gameTime)
     {
         collisionManager.Update(gameTime);
-        player.Update(gameTime);
         foreach (var entity in _entities)
             entity.Update(gameTime);
-        mainCamera.setPosition(player.position);
+        mainCamera.SetPosition(Player.GetInstance().position);
     }
 
     public void Draw(GameTime gameTime)
@@ -98,6 +98,5 @@ public class World
         Level.Draw();
         foreach (var entity in _entities)
             entity.Draw(gameTime);
-        player.Draw(gameTime);
     }
 }

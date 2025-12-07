@@ -23,7 +23,7 @@ public class Player : Entity, IColider
     private const float GRAVITY = -9.81f * 2;
     private const float MAX_JUMP_HEIGHT = 3.5f;
     private const float DECREES_VELOCITY_FACTOR = -0.7f;
-    private const float ACCELERATION = 5f;
+    private const float ACCELERATION = 10f;
 
     private const string WALK_ANIMATION_PATH = "assets/textures/player/Luca_walk";
     private const string IDLE_ANIMATION_PATH = "assets/textures/player/Lucas_idle";
@@ -240,6 +240,8 @@ public class Player : Entity, IColider
 
         if (position.Y >= World.worldHeight - Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
             screenPosition.Y = Engine.screenHeight - World.worldHeight + position.Y;
+        else if (position.Y < Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
+            screenPosition.Y = position.Y + Engine.TILE_SIZE;
         else
             screenPosition.Y = Engine.SCREEN_CENTER_Y;
 
