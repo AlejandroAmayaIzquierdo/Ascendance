@@ -61,7 +61,7 @@ namespace SharpMath2
         {
             get
             {
-                if(_LongestAxisLength < 0)
+                if (_LongestAxisLength < 0)
                 {
                     Vector2[] verts = Vertices;
                     float longestAxisLenSq = -1;
@@ -108,12 +108,16 @@ namespace SharpMath2
             Vector2 tmp;
             for (int i = 1; i < vertices.Length; i++)
             {
-                tmp = Math2.MakeStandardNormal(Vector2.Normalize(Math2.Perpendicular(vertices[i] - vertices[i - 1])));
+                tmp = Math2.MakeStandardNormal(
+                    Vector2.Normalize(Math2.Perpendicular(vertices[i] - vertices[i - 1]))
+                );
                 if (!Normals.Contains(tmp))
                     Normals.Add(tmp);
             }
 
-            tmp = Math2.MakeStandardNormal(Vector2.Normalize(Math2.Perpendicular(vertices[0] - vertices[vertices.Length - 1])));
+            tmp = Math2.MakeStandardNormal(
+                Vector2.Normalize(Math2.Perpendicular(vertices[0] - vertices[vertices.Length - 1]))
+            );
             if (!Normals.Contains(tmp))
                 Normals.Add(tmp);
 
@@ -150,7 +154,10 @@ namespace SharpMath2
                 Center += tri.Center * tri.Area;
                 last = next;
             }
-            Lines[Vertices.Length - 1] = new Line2(Vertices[Vertices.Length - 2], Vertices[Vertices.Length - 1]);
+            Lines[Vertices.Length - 1] = new Line2(
+                Vertices[Vertices.Length - 2],
+                Vertices[Vertices.Length - 1]
+            );
 
             Array.Sort(triangleSortKeys, TrianglePartition);
 
@@ -169,8 +176,9 @@ namespace SharpMath2
                 var centToCurr = (curr - Center);
                 var angCurr = Rotation2.Standardize((float)Math.Atan2(centToCurr.Y, centToCurr.X));
 
-
-                var clockwise = (angCurr < angLast && (angCurr - angLast) < Math.PI) || (angCurr - angLast) > Math.PI;
+                var clockwise =
+                    (angCurr < angLast && (angCurr - angLast) < Math.PI)
+                    || (angCurr - angLast) > Math.PI;
                 if (clockwise)
                     cwCounter++;
                 else
@@ -199,7 +207,11 @@ namespace SharpMath2
         /// <param name="offset">The polygons offset</param>
         /// <param name="rotation">The polygons rotation</param>
         /// <returns>The actualized polygon</returns>
-        public static Vector2[] ActualizePolygon(Polygon2 polygon, Vector2 offset, Rotation2 rotation)
+        public static Vector2[] ActualizePolygon(
+            Polygon2 polygon,
+            Vector2 offset,
+            Rotation2 rotation
+        )
         {
             int len = polygon.Vertices.Length;
             Vector2[] result = new Vector2[len];
@@ -208,9 +220,11 @@ namespace SharpMath2
             {
                 for (int i = 0; i < len; i++)
                 {
-                    result[i] = Math2.Rotate(polygon.Vertices[i], polygon.Center, rotation) + offset;
+                    result[i] =
+                        Math2.Rotate(polygon.Vertices[i], polygon.Center, rotation) + offset;
                 }
-            } else
+            }
+            else
             {
                 // performance sensitive section
                 int i = 0;
@@ -255,7 +269,13 @@ namespace SharpMath2
         /// <param name="point">Point to check</param>
         /// <param name="strict">True if the edges do not count as inside</param>
         /// <returns>If the polygon at pos with rotation rot about its center contains point</returns>
-        public static bool Contains(Polygon2 poly, Vector2 pos, Rotation2 rot, Vector2 point, bool strict)
+        public static bool Contains(
+            Polygon2 poly,
+            Vector2 pos,
+            Rotation2 rot,
+            Vector2 point,
+            bool strict
+        )
         {
             // The point is contained in the polygon iff it is contained in one of the triangles
             // which partition this polygon. Due to how we constructed the triangles, it will
@@ -267,7 +287,13 @@ namespace SharpMath2
 
                 if (Triangle2.Contains(tri, pos, point))
                 {
-                    if (strict && (Line2.Contains(tri.Edges[0], pos, point) || Line2.Contains(tri.Edges[1], pos, point)))
+                    if (
+                        strict
+                        && (
+                            Line2.Contains(tri.Edges[0], pos, point)
+                            || Line2.Contains(tri.Edges[1], pos, point)
+                        )
+                    )
                         return false;
                     return true;
                 }
@@ -287,7 +313,15 @@ namespace SharpMath2
         /// <param name="rot2">Rotation fo the second polyogn</param>
         /// <param name="strict">If overlapping is required for intersection</param>
         /// <returns>If poly1 at pos1 with rotation rot1 intersects poly2 at pos2with rotation rot2</returns>
-        public static bool Intersects(Polygon2 poly1, Polygon2 poly2, Vector2 pos1, Vector2 pos2, Rotation2 rot1, Rotation2 rot2, bool strict)
+        public static bool Intersects(
+            Polygon2 poly1,
+            Polygon2 poly2,
+            Vector2 pos1,
+            Vector2 pos2,
+            Rotation2 rot1,
+            Rotation2 rot2,
+            bool strict
+        )
         {
             return IntersectsSAT(poly1, poly2, pos1, pos2, rot1, rot2, strict);
         }
@@ -308,7 +342,15 @@ namespace SharpMath2
         /// false if they must overlap on at least one point for intersection.
         /// </param>
         /// <returns>True if the polygons overlap, false if they do not</returns>
-        public static bool IntersectsSAT(Polygon2 poly1, Polygon2 poly2, Vector2 pos1, Vector2 pos2, Rotation2 rot1, Rotation2 rot2, bool strict)
+        public static bool IntersectsSAT(
+            Polygon2 poly1,
+            Polygon2 poly2,
+            Vector2 pos1,
+            Vector2 pos2,
+            Rotation2 rot1,
+            Rotation2 rot2,
+            bool strict
+        )
         {
             if (rot1 == Rotation2.Zero && rot2 == Rotation2.Zero)
             {
@@ -339,7 +381,11 @@ namespace SharpMath2
                 return true;
             }
 
-            foreach (var norm in poly1.Normals.Select((v) => Tuple.Create(v, rot1)).Union(poly2.Normals.Select((v) => Tuple.Create(v, rot2))))
+            foreach (
+                var norm in poly1
+                    .Normals.Select((v) => Tuple.Create(v, rot1))
+                    .Union(poly2.Normals.Select((v) => Tuple.Create(v, rot2)))
+            )
             {
                 var axis = Math2.Rotate(norm.Item1, Vector2.Zero, norm.Item2);
                 if (!IntersectsAlongAxis(poly1, poly2, pos1, pos2, rot1, rot2, strict, axis))
@@ -372,7 +418,15 @@ namespace SharpMath2
         /// false if they must overlap on at least one point for intersection.
         /// </param>
         /// <returns>True if the polygons overlap, false if they do not</returns>
-        public static unsafe bool IntersectsGJK(Polygon2 poly1, Polygon2 poly2, Vector2 pos1, Vector2 pos2, Rotation2 rot1, Rotation2 rot2, bool strict)
+        public static unsafe bool IntersectsGJK(
+            Polygon2 poly1,
+            Polygon2 poly2,
+            Vector2 pos1,
+            Vector2 pos2,
+            Rotation2 rot1,
+            Rotation2 rot2,
+            bool strict
+        )
         {
             Vector2[] verts1 = ActualizePolygon(poly1, pos1, rot1);
             Vector2[] verts2 = ActualizePolygon(poly2, pos2, rot2);
@@ -393,10 +447,14 @@ namespace SharpMath2
 
             while (true)
             {
-                if (simplexIndex < 2) {
+                if (simplexIndex < 2)
+                {
                     simplex[++simplexIndex] = CalculateSupport(verts1, verts2, desiredAxis);
 
-                    float progressFromOriginTowardDesiredAxis = Math2.Dot(simplex[simplexIndex], desiredAxis);
+                    float progressFromOriginTowardDesiredAxis = Math2.Dot(
+                        simplex[simplexIndex],
+                        desiredAxis
+                    );
                     if (progressFromOriginTowardDesiredAxis < -Math2.DEFAULT_EPSILON)
                     {
                         return false; // no hope
@@ -550,16 +608,15 @@ namespace SharpMath2
                             // simplex[0], (new) simplex[2], and I think it guarrantees
                             // we're in that case.
 
-
                             desiredAxis = -abPerp;
                             Vector2 ogSimplex2 = simplex[2];
 
                             simplex[2] = CalculateSupport(verts1, verts2, desiredAxis);
 
                             if (
-                                Math2.Approximately(simplex[1], simplex[2]) ||
-                                Math2.Approximately(ogSimplex2, simplex[2]) ||
-                                Math2.Approximately(simplex[2], Vector2.Zero)
+                                Math2.Approximately(simplex[1], simplex[2])
+                                || Math2.Approximately(ogSimplex2, simplex[2])
+                                || Math2.Approximately(simplex[2], Vector2.Zero)
                             )
                             {
                                 // we've shown that this is a true edge
@@ -631,7 +688,6 @@ namespace SharpMath2
             }
         }
 
-
         /// <summary>
         /// Calculates the support vector along +axis+ for the two polygons. This
         /// is the point furthest in the direction of +axis+ within the minkowski
@@ -676,11 +732,18 @@ namespace SharpMath2
             return index;
         }
 
-        public static void DumpInfo(Polygon2 poly1, Polygon2 poly2, Vector2 pos1, Vector2 pos2, bool strict)
+        public static void DumpInfo(
+            Polygon2 poly1,
+            Polygon2 poly2,
+            Vector2 pos1,
+            Vector2 pos2,
+            bool strict
+        )
         {
             Console.WriteLine("Polygon2 poly1 = new Polygon2(new Vector2[]");
             Console.WriteLine("{");
-            foreach (Vector2 v in poly1.Vertices) {
+            foreach (Vector2 v in poly1.Vertices)
+            {
                 Console.WriteLine($"  new Vector2({v.X}f, {v.Y}f),");
             }
             Console.WriteLine("});");
@@ -717,12 +780,23 @@ namespace SharpMath2
         /// <param name="rot1">Rotation of the first polyogn</param>
         /// <param name="rot2">Rotation of the second polygon</param>
         /// <returns>MTV to move poly1 to prevent intersection with poly2</returns>
-        public static Tuple<Vector2, float> IntersectMTV(Polygon2 poly1, Polygon2 poly2, Vector2 pos1, Vector2 pos2, Rotation2 rot1, Rotation2 rot2)
+        public static Tuple<Vector2, float> IntersectMTV(
+            Polygon2 poly1,
+            Polygon2 poly2,
+            Vector2 pos1,
+            Vector2 pos2,
+            Rotation2 rot1,
+            Rotation2 rot2
+        )
         {
             Vector2 bestAxis = Vector2.Zero;
             float bestMagn = float.MaxValue;
 
-            foreach (var norm in poly1.Normals.Select((v) => Tuple.Create(v, rot1)).Union(poly2.Normals.Select((v) => Tuple.Create(v, rot2))))
+            foreach (
+                var norm in poly1
+                    .Normals.Select((v) => Tuple.Create(v, rot1))
+                    .Union(poly2.Normals.Select((v) => Tuple.Create(v, rot2)))
+            )
             {
                 var axis = Math2.Rotate(norm.Item1, Vector2.Zero, norm.Item2);
                 var mtv = IntersectMTVAlongAxis(poly1, poly2, pos1, pos2, rot1, rot2, axis);
@@ -750,7 +824,16 @@ namespace SharpMath2
         /// <param name="strict">If overlapping is required for intersection</param>
         /// <param name="axis">The axis to check</param>
         /// <returns>If poly1 at pos1 intersects poly2 at pos2 along axis</returns>
-        public static bool IntersectsAlongAxis(Polygon2 poly1, Polygon2 poly2, Vector2 pos1, Vector2 pos2, Rotation2 rot1, Rotation2 rot2, bool strict, Vector2 axis)
+        public static bool IntersectsAlongAxis(
+            Polygon2 poly1,
+            Polygon2 poly2,
+            Vector2 pos1,
+            Vector2 pos2,
+            Rotation2 rot1,
+            Rotation2 rot2,
+            bool strict,
+            Vector2 axis
+        )
         {
             var proj1 = ProjectAlongAxis(poly1, pos1, rot1, axis);
             var proj2 = ProjectAlongAxis(poly2, pos2, rot2, axis);
@@ -770,13 +853,22 @@ namespace SharpMath2
         /// <param name="rot2">polygon 2 rotation</param>
         /// <param name="axis">Axis to check</param>
         /// <returns>a number to shift pos1 along axis by to prevent poly1 at pos1 from intersecting poly2 at pos2, or null if no int. along axis</returns>
-        public static float? IntersectMTVAlongAxis(Polygon2 poly1, Polygon2 poly2, Vector2 pos1, Vector2 pos2, Rotation2 rot1, Rotation2 rot2, Vector2 axis)
+        public static float? IntersectMTVAlongAxis(
+            Polygon2 poly1,
+            Polygon2 poly2,
+            Vector2 pos1,
+            Vector2 pos2,
+            Rotation2 rot1,
+            Rotation2 rot2,
+            Vector2 axis
+        )
         {
             var proj1 = ProjectAlongAxis(poly1, pos1, rot1, axis);
             var proj2 = ProjectAlongAxis(poly2, pos2, rot2, axis);
 
             return AxisAlignedLine2.IntersectMTV(proj1, proj2);
         }
+
         /// <summary>
         /// Projects the polygon at position onto the specified axis.
         /// </summary>
@@ -785,7 +877,12 @@ namespace SharpMath2
         /// <param name="rot">the rotation of the polygon</param>
         /// <param name="axis">The axis to project onto</param>
         /// <returns>poly at pos projected along axis</returns>
-        public static AxisAlignedLine2 ProjectAlongAxis(Polygon2 poly, Vector2 pos, Rotation2 rot, Vector2 axis)
+        public static AxisAlignedLine2 ProjectAlongAxis(
+            Polygon2 poly,
+            Vector2 pos,
+            Rotation2 rot,
+            Vector2 axis
+        )
         {
             return ProjectAlongAxis(axis, pos, rot, poly.Center, poly.Vertices);
         }
@@ -801,7 +898,12 @@ namespace SharpMath2
         /// <param name="pos">Origin of the polygon</param>
         /// <param name="rot">Rotation of the polygon</param>
         /// <param name="pt">Point to check.</param>
-        public static Tuple<Vector2, float> MinDistance(Polygon2 poly, Vector2 pos, Rotation2 rot, Vector2 pt)
+        public static Tuple<Vector2, float> MinDistance(
+            Polygon2 poly,
+            Vector2 pos,
+            Rotation2 rot,
+            Vector2 pt
+        )
         {
             /*
              * Definitions
@@ -825,7 +927,8 @@ namespace SharpMath2
              * If this is not true for ANY of the lines, the polygon does not contain the point.
              */
 
-            var last = Math2.Rotate(poly.Vertices[poly.Vertices.Length - 1], poly.Center, rot) + pos;
+            var last =
+                Math2.Rotate(poly.Vertices[poly.Vertices.Length - 1], poly.Center, rot) + pos;
             for (var i = 0; i < poly.Vertices.Length; i++)
             {
                 var curr = Math2.Rotate(poly.Vertices[i], poly.Center, rot) + pos;
@@ -860,7 +963,6 @@ namespace SharpMath2
                         return Tuple.Create(Vector2.Normalize(res), res.Length());
                     }
 
-
                     var distOnNorm = ptProjOnNorm - lineProjOnNorm;
                     return Tuple.Create(norm, distOnNorm);
                 }
@@ -871,7 +973,12 @@ namespace SharpMath2
             return null;
         }
 
-        private static IEnumerable<Vector2> GetExtraMinDistanceVecsPolyPoly(Polygon2 poly1, Polygon2 poly2, Vector2 pos1, Vector2 pos2)
+        private static IEnumerable<Vector2> GetExtraMinDistanceVecsPolyPoly(
+            Polygon2 poly1,
+            Polygon2 poly2,
+            Vector2 pos1,
+            Vector2 pos2
+        )
         {
             foreach (var vert in poly1.Vertices)
             {
@@ -895,15 +1002,26 @@ namespace SharpMath2
         /// <param name="pos2">Origin of second polygon</param>
         /// <param name="rot1">Rotation of first polygon</param>
         /// <param name="rot2">Rotation of second polygon</param>
-        public static Tuple<Vector2, float> MinDistance(Polygon2 poly1, Polygon2 poly2, Vector2 pos1, Vector2 pos2, Rotation2 rot1, Rotation2 rot2)
+        public static Tuple<Vector2, float> MinDistance(
+            Polygon2 poly1,
+            Polygon2 poly2,
+            Vector2 pos1,
+            Vector2 pos2,
+            Rotation2 rot1,
+            Rotation2 rot2
+        )
         {
             if (rot1.Theta != 0 || rot2.Theta != 0)
             {
-                throw new NotSupportedException("Finding the minimum distance between polygons requires calculating the rotated polygons. This operation is expensive and should be cached. " +
-                                                "Create the rotated polygons with Polygon2#GetRotated and call this function with Rotation2.Zero for both rotations.");
+                throw new NotSupportedException(
+                    "Finding the minimum distance between polygons requires calculating the rotated polygons. This operation is expensive and should be cached. "
+                        + "Create the rotated polygons with Polygon2#GetRotated and call this function with Rotation2.Zero for both rotations."
+                );
             }
 
-            var axises = poly1.Normals.Union(poly2.Normals).Union(GetExtraMinDistanceVecsPolyPoly(poly1, poly2, pos1, pos2));
+            var axises = poly1
+                .Normals.Union(poly2.Normals)
+                .Union(GetExtraMinDistanceVecsPolyPoly(poly1, poly2, pos1, pos2));
             Vector2? bestAxis = null; // note this is the one with the longest distance
             float bestDist = 0;
             foreach (var norm in axises)
@@ -950,7 +1068,6 @@ namespace SharpMath2
             return new Polygon2(rotatedVerts);
         }
 
-
         /// <summary>
         /// Creates the ray trace polygons from the given polygon moving from start to end. The returned set of polygons
         /// may not be the smallest possible set of polygons which perform this job.
@@ -996,13 +1113,17 @@ namespace SharpMath2
                 var line = poly.Lines[lineIndex];
                 if (!Math2.IsOnLine(line.Start, line.End, line.Start + offset))
                 {
-                    ourLinesAsRects.Add(new Polygon2(new Vector2[]
-                    {
-                    line.Start,
-                    line.End,
-                    line.End + offset,
-                    line.Start + offset
-                    }));
+                    ourLinesAsRects.Add(
+                        new Polygon2(
+                            new Vector2[]
+                            {
+                                line.Start,
+                                line.End,
+                                line.End + offset,
+                                line.Start + offset,
+                            }
+                        )
+                    );
                 }
             }
 
@@ -1019,7 +1140,13 @@ namespace SharpMath2
         /// <param name="pos2">Origin of second polygon</param>
         /// <param name="strict">If overlap is required for intersection</param>
         /// <returns>If poly1 at pos1 not rotated and poly2 at pos2 not rotated intersect</returns>
-        public static bool Intersects(Polygon2 poly1, Polygon2 poly2, Vector2 pos1, Vector2 pos2, bool strict)
+        public static bool Intersects(
+            Polygon2 poly1,
+            Polygon2 poly2,
+            Vector2 pos1,
+            Vector2 pos2,
+            bool strict
+        )
         {
             return Intersects(poly1, poly2, pos1, pos2, Rotation2.Zero, Rotation2.Zero, strict);
         }
@@ -1033,7 +1160,12 @@ namespace SharpMath2
         /// <param name="pos1">Origin of first polygon</param>
         /// <param name="pos2">Origin of second polygon</param>
         /// <returns>If poly1 at pos1 not rotated intersects poly2 at pos2 not rotated</returns>
-        public static Tuple<Vector2, float> IntersectMTV(Polygon2 poly1, Polygon2 poly2, Vector2 pos1, Vector2 pos2)
+        public static Tuple<Vector2, float> IntersectMTV(
+            Polygon2 poly1,
+            Polygon2 poly2,
+            Vector2 pos1,
+            Vector2 pos2
+        )
         {
             return IntersectMTV(poly1, poly2, pos1, pos2, Rotation2.Zero, Rotation2.Zero);
         }
@@ -1061,7 +1193,12 @@ namespace SharpMath2
         /// <param name="pos1">Position of first polygon</param>
         /// <param name="pos2">Position of second polygon</param>
         /// <returns>axis to go in, distance to go if poly1 does not intersect poly2, otherwise null</returns>
-        public static Tuple<Vector2, float> MinDistance(Polygon2 poly1, Polygon2 poly2, Vector2 pos1, Vector2 pos2)
+        public static Tuple<Vector2, float> MinDistance(
+            Polygon2 poly1,
+            Polygon2 poly2,
+            Vector2 pos1,
+            Vector2 pos2
+        )
         {
             return MinDistance(poly1, poly2, pos1, pos2, Rotation2.Zero, Rotation2.Zero);
         }

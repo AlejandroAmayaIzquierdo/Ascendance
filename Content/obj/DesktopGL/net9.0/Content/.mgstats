@@ -1,0 +1,6 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"/home/nova/Code/Ascendance/Content/assets/levels/startLevel/monochrome_sheet.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/levels/startLevel/monochrome_sheet.xnb","TextureProcessor","Texture2DContent",5233,409685,0.177252
+"/home/nova/Code/Ascendance/Content/assets/levels/startLevel/SpriteSheet.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/levels/startLevel/SpriteSheet.xnb","TextureProcessor","Texture2DContent",10314,139349,0.0069278
+"/home/nova/Code/Ascendance/Content/assets/textures/BotMaster/BotMaster_idle.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/BotMaster/BotMaster_idle.xnb","TextureProcessor","Texture2DContent",383,6565,0.1288745
+"/home/nova/Code/Ascendance/Content/assets/textures/player/Luca_walk.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/player/Luca_walk.xnb","TextureProcessor","Texture2DContent",671,7861,0.1206129
+"/home/nova/Code/Ascendance/Content/assets/textures/player/Lucas_idle.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/player/Lucas_idle.xnb","TextureProcessor","Texture2DContent",453,6565,0.0007838

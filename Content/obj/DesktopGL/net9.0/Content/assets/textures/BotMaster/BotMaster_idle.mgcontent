@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>/home/nova/Code/Ascendance/Content/assets/textures/player/Luca2.png</SourceFile>
-  <SourceTime>2025-12-06T01:27:14.8447972+00:00</SourceTime>
-  <DestFile>/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/player/Luca2.xnb</DestFile>
-  <DestTime>2025-12-06T01:27:53.8648671+00:00</DestTime>
+  <SourceFile>/home/nova/Code/Ascendance/Content/assets/textures/BotMaster/BotMaster_idle.png</SourceFile>
+  <SourceTime>2025-12-07T02:29:51.8591783+00:00</SourceTime>
+  <DestFile>/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/BotMaster/BotMaster_idle.xnb</DestFile>
+  <DestTime>2025-12-07T02:44:29.850023+00:00</DestTime>
   <Importer>TextureImporter</Importer>
-  <ImporterTime>2022-07-26T12:44:56+01:00</ImporterTime>
+  <ImporterTime>2025-06-02T11:31:02+01:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
-  <ProcessorTime>2022-07-26T12:44:56+01:00</ProcessorTime>
+  <ProcessorTime>2025-06-02T11:31:02+01:00</ProcessorTime>
   <Parameters>
     <Key>ColorKeyColor</Key>
     <Value>255,0,255,255</Value>

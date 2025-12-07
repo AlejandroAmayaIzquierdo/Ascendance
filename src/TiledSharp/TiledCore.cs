@@ -16,7 +16,7 @@ namespace TiledSharp
 {
     public abstract class TmxDocument
     {
-        public string TmxDirectory {get; private set;}
+        public string TmxDirectory { get; private set; }
 
         protected ICustomLoader CustomLoader { get; }
 
@@ -38,16 +38,17 @@ namespace TiledSharp
             if (asm != null)
                 manifest = asm.GetManifestResourceNames();
 
-            var fileResPath = filepath.Replace(
-                    Path.DirectorySeparatorChar.ToString(), ".");
+            var fileResPath = filepath.Replace(Path.DirectorySeparatorChar.ToString(), ".");
             var fileRes = Array.Find(manifest, s => s.EndsWith(fileResPath));
 
             // If there is a resource in the assembly, load the resource
             // Otherwise, assume filepath is an explicit path
             if (fileRes != null)
             {
-                using (Stream xmlStream = asm.GetManifestResourceStream(fileRes)) {
-                    using (XmlReader reader = XmlReader.Create(xmlStream)) {
+                using (Stream xmlStream = asm.GetManifestResourceStream(fileRes))
+                {
+                    using (XmlReader reader = XmlReader.Create(xmlStream))
+                    {
                         xDoc = XDocument.Load(reader);
                     }
                 }
@@ -72,13 +73,13 @@ namespace TiledSharp
 
     public interface ITmxElement
     {
-        string Name {get;}
+        string Name { get; }
     }
 
-    public class TmxList<T> : KeyedCollection<string, T> where T : ITmxElement
+    public class TmxList<T> : KeyedCollection<string, T>
+        where T : ITmxElement
     {
-        private Dictionary<string, int> nameCount
-            = new Dictionary<string, int>();
+        private Dictionary<string, int> nameCount = new Dictionary<string, int>();
 
         public new void Add(T t)
         {
@@ -101,9 +102,9 @@ namespace TiledSharp
 
             // For duplicate keys, append a counter
             // For pathological cases, insert underscores to ensure uniqueness
-            while (Contains(name)) {
-                name = name + String.Concat(Enumerable.Repeat("_", dupes))
-                            + count.ToString();
+            while (Contains(name))
+            {
+                name = name + String.Concat(Enumerable.Repeat("_", dupes)) + count.ToString();
                 dupes++;
             }
 
@@ -116,16 +117,21 @@ namespace TiledSharp
     {
         public PropertyDict(XContainer xmlProp)
         {
-            if (xmlProp == null) return;
+            if (xmlProp == null)
+                return;
 
             foreach (var p in xmlProp.Elements("property"))
             {
-                string pname, pval;
+                string pname,
+                    pval;
 
                 pname = p.Attribute("name").Value;
-                try {
+                try
+                {
                     pval = p.Attribute("value").Value;
-                } catch (System.NullReferenceException) {
+                }
+                catch (System.NullReferenceException)
+                {
                     // Fallback to element value if no "value"
                     pval = p.Value;
                 }
@@ -137,23 +143,25 @@ namespace TiledSharp
 
     public class TmxImage
     {
-        public string Source {get; private set;}
-        public string Format {get; private set;}
-        public Stream Data {get; private set;}
-        public TmxColor Trans {get; private set;}
-        public int? Width {get; private set;}
-        public int? Height {get; private set;}
+        public string Source { get; private set; }
+        public string Format { get; private set; }
+        public Stream Data { get; private set; }
+        public TmxColor Trans { get; private set; }
+        public int? Width { get; private set; }
+        public int? Height { get; private set; }
 
         public TmxImage(XElement xImage, string tmxDir = "")
         {
-            if (xImage == null) return;
+            if (xImage == null)
+                return;
 
             var xSource = xImage.Attribute("source");
 
             if (xSource != null)
                 // Append directory if present
                 Source = Path.Combine(tmxDir, (string)xSource);
-            else {
+            else
+            {
                 Format = (string)xImage.Attribute("format");
                 var xData = xImage.Element("data");
                 var decodedStream = new TmxBase64Data(xData);
@@ -168,13 +176,14 @@ namespace TiledSharp
 
     public class TmxColor
     {
-        public int R {get; private set;}
-        public int G {get; private set;}
-        public int B {get; private set;}
+        public int R { get; private set; }
+        public int G { get; private set; }
+        public int B { get; private set; }
 
         public TmxColor(XAttribute xColor)
         {
-            if (xColor == null) return;
+            if (xColor == null)
+                return;
 
             var colorStr = ((string)xColor).TrimStart("#".ToCharArray());
 
@@ -186,31 +195,36 @@ namespace TiledSharp
 
     public class TmxBase64Data
     {
-        public Stream Data {get; private set;}
+        public Stream Data { get; private set; }
 
         public TmxBase64Data(XElement xData)
         {
-            string encoding = (string) (xData.Attribute("encoding") ?? xData.Parent?.Attribute("encoding"));
-            string compression = (string) (xData.Attribute("compression") ?? xData.Parent?.Attribute("compression"));
+            string encoding = (string)(
+                xData.Attribute("encoding") ?? xData.Parent?.Attribute("encoding")
+            );
+            string compression = (string)(
+                xData.Attribute("compression") ?? xData.Parent?.Attribute("compression")
+            );
             if (encoding != "base64")
-                throw new Exception(
-                    "TmxBase64Data: Only Base64-encoded data is supported.");
+                throw new Exception("TmxBase64Data: Only Base64-encoded data is supported.");
 
             var rawData = Convert.FromBase64String((string)xData.Value);
             Data = new MemoryStream(rawData, false);
 
-            if (compression == "gzip") {
-                Data = new GZipStream (Data, CompressionMode.Decompress);
+            if (compression == "gzip")
+            {
+                Data = new GZipStream(Data, CompressionMode.Decompress);
             }
-            else if (compression == "zlib") {
+            else if (compression == "zlib")
+            {
                 // Strip 2-byte header and 4-byte checksum
                 // TODO: Validate header here
                 var bodyLength = rawData.Length - 6;
                 byte[] bodyData = new byte[bodyLength];
-                Array.Copy (rawData, 2, bodyData, 0, bodyLength);
+                Array.Copy(rawData, 2, bodyData, 0, bodyLength);
 
-                var bodyStream = new MemoryStream (bodyData, false);
-                Data = new DeflateStream (bodyStream, CompressionMode.Decompress);
+                var bodyStream = new MemoryStream(bodyData, false);
+                Data = new DeflateStream(bodyStream, CompressionMode.Decompress);
 
                 // TODO: Validate checksum?
             }

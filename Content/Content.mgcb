@@ -13,17 +13,20 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin assets/Effects/first-shader.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Optimize
-/build:assets/Effects/first-shader.fx
-
-#begin assets/Effects/pixelate.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:assets/Effects/pixelate.fx
+# Shaders commented out - requires Wine on Linux to compile
+# Uncomment after setting up Wine or use pre-compiled .xnb files
+#
+# #begin assets/Effects/first-shader.fx
+# /importer:EffectImporter
+# /processor:EffectProcessor
+# /processorParam:DebugMode=Optimize
+# /build:assets/Effects/first-shader.fx
+# 
+# #begin assets/Effects/pixelate.fx
+# /importer:EffectImporter
+# /processor:EffectProcessor
+# /processorParam:DebugMode=Auto
+# /build:assets/Effects/pixelate.fx
 
 #begin assets/levels/startLevel/monochrome_sheet.png
 /importer:TextureImporter
@@ -49,7 +52,7 @@
 /processorParam:TextureFormat=Color
 /build:assets/levels/startLevel/SpriteSheet.png
 
-#begin assets/textures/nude/Tiny16_Nude.png
+#begin assets/textures/player/Luca_walk.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -59,55 +62,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:assets/textures/nude/Tiny16_Nude.png
-
-#begin assets/textures/player/kevin.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:assets/textures/player/kevin.png
-
-#begin assets/textures/player/Luca.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:assets/textures/player/Luca.png
-
-#begin assets/textures/player/Luca2.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:assets/textures/player/Luca2.png
-
-#begin assets/textures/player/Luca3.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:assets/textures/player/Luca3.png
+/build:assets/textures/player/Luca_walk.png
 
 #begin assets/textures/player/Lucas_idle.png
 /importer:TextureImporter
@@ -120,4 +75,19 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:assets/textures/player/Lucas_idle.png
+
+#begin assets/textures/BotMaster/BotMaster_idle.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:assets/textures/BotMaster/BotMaster_idle.png
+
+#begin assets/levels/startLevel/verticalTest.tmx
+# /build:assets/levels/startLevel/verticalTest.tmx
 

@@ -1,9 +1,9 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.Xna.Framework;
 using nx.entity;
 using SharpMath2;
@@ -11,31 +11,37 @@ using TiledSharp;
 
 namespace nx.tile;
 
-public enum Collision
+public enum CollisionType
 {
     GROUNDED,
     WALL,
     HEAD,
-    NONE
+    NONE,
 }
 
-public class CollisionObject
+public class CollisionObject(Vector2 position, Polygon2 shape)
 {
-    public CollisionObject(Vector2 position, Polygon2 shape)
-    {
-        this.position = position;
-        this.shape = shape;
-    }
-    public Vector2 position;
-    public Polygon2 shape;
+    public Vector2 position = position;
+    public Polygon2 shape = shape;
 }
+
+public record CollisionInfo(
+    CollisionObject Object,
+    Vector2 Normal,
+    float Penetration,
+    CollisionType Type,
+    Line2 ContactLine
+);
 
 public class CollisionManager
 {
-    private readonly List<CollisionObject> collisionObjects;
-    public CollisionManager(TmxObjectGroup collisionGroup)
+    private readonly List<CollisionObject> collisionObjects = [];
+
+    private readonly List<IColider> _entities = [];
+    private TmxObjectGroup tmxObjectGroup;
+
+    public CollisionManager(TmxObjectGroup collisionGroup, List<IColider> coliders)
     {
-        collisionObjects = new List<CollisionObject>();
         foreach (var o in collisionGroup.Objects)
         {
             Collection<TmxObjectPoint> tmxObjectPoints = o.Points;
@@ -43,70 +49,162 @@ public class CollisionManager
             if (tmxObjectPoints == null)
                 continue;
 
-            Vector2[] vertices = tmxObjectPoints.Select(p => new Vector2((float)p.X * Engine.scale, (float)p.Y * Engine.scale)).ToArray();
+            Vector2[] vertices =
+            [
+                .. tmxObjectPoints.Select(p => new Vector2(
+                    (float)p.X * Engine.scale,
+                    (float)p.Y * Engine.scale
+                )),
+            ];
 
+            collisionObjects.Add(
+                new CollisionObject(new Vector2((float)o.X, (float)o.Y), new Polygon2(vertices))
+            );
 
-            collisionObjects.Add(new CollisionObject(new Vector2((float)o.X, (float)o.Y), new Polygon2(vertices)));
-
+            _entities = coliders;
         }
     }
 
-    public List<CollisionObject> CheckCollision(Entity entity, Vector2 nexMovement)
+    public void Update(GameTime gameTime)
     {
-        var entityShape = new Polygon2(new[] {
-        new Vector2(0, 0),
-        new Vector2(entity.collisionBounds.Width, 0),
-        new Vector2(0, entity.collisionBounds.Height),
-        new Vector2(entity.collisionBounds.Width, entity.collisionBounds.Height)
-    });
-        List<CollisionObject> collisionPolygonsToReturn = new List<CollisionObject>();
+        foreach (var entity in _entities)
+        {
+            CollisionInfo[] collision = CheckCollisionDetailed(entity);
+
+            if (collision.Length > 0)
+                entity.HandleCollision(collision);
+        }
+    }
+
+    public CollisionInfo[] CheckCollisionDetailed(IColider entity)
+    {
+        var entityShape = new Polygon2(
+            [
+                new Vector2(0, 0),
+                new Vector2(entity.CollisionsBounds.Width, 0),
+                new Vector2(0, entity.CollisionsBounds.Height),
+                new Vector2(entity.CollisionsBounds.Width, entity.CollisionsBounds.Height),
+            ]
+        );
+        List<CollisionInfo> collisionInfos = [];
+        Vector2 entityPosition = new(entity.CollisionsBounds.X, entity.CollisionsBounds.Y);
+
+        foreach (var collisionObject in collisionObjects)
+        {
+            bool intersects = Polygon2.Intersects(
+                entityShape,
+                collisionObject.shape,
+                entityPosition,
+                collisionObject.position * Engine.scale,
+                false
+            );
+
+            if (intersects)
+                collisionInfos.Add(CalculateCollisionInfo(entity, entityPosition, collisionObject));
+        }
+
+        return [.. collisionInfos];
+    }
+
+    // Calcular información detallada de la colisión
+    private CollisionInfo CalculateCollisionInfo(
+        IColider entity,
+        Vector2 entityPosition,
+        CollisionObject collisionObject
+    )
+    {
+        Vector2 entityCenter =
+            entityPosition
+            + new Vector2(entity.CollisionsBounds.Width / 2, entity.CollisionsBounds.Height / 2);
+
+        float minDistance = float.MaxValue;
+        Line2 minDistanceLine = null;
+
+        // Encontrar la línea más cercana
+        foreach (Line2 line in collisionObject.shape.Lines)
+        {
+            float distance = Line2.Distance(
+                line,
+                collisionObject.position * Engine.scale,
+                entityCenter
+            );
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                minDistanceLine = line;
+            }
+        }
+
+        // Determinar tipo de colisión y normal
+        CollisionType type = CollisionType.NONE;
+        Vector2 normal = Vector2.Zero;
+
+        if (minDistanceLine.Horizontal)
+        {
+            if (entityPosition.Y <= collisionObject.position.Y * Engine.scale)
+            {
+                type = CollisionType.GROUNDED;
+                normal = new Vector2(0, -1); // Normal hacia arriba
+            }
+            else
+            {
+                type = CollisionType.HEAD;
+                normal = new Vector2(0, 1); // Normal hacia abajo
+            }
+        }
+        else if (minDistanceLine.Vertical)
+        {
+            type = CollisionType.WALL;
+            if (entityPosition.X <= collisionObject.position.X * Engine.scale)
+            {
+                normal = new Vector2(-1, 0); // Normal hacia la izquierda
+            }
+            else
+            {
+                normal = new Vector2(1, 0); // Normal hacia la derecha
+            }
+        }
+
+        return new(collisionObject, normal, minDistance, type, minDistanceLine);
+    }
+
+    // Método original mantenido para compatibilidad
+    [Obsolete]
+    public List<CollisionObject> CheckCollision(IColider entity, Vector2 nextMovement)
+    {
+        var entityShape = new Polygon2(
+            [
+                new Vector2(0, 0),
+                new Vector2(entity.CollisionsBounds.Width, 0),
+                new Vector2(0, entity.CollisionsBounds.Height),
+                new Vector2(entity.CollisionsBounds.Width, entity.CollisionsBounds.Height),
+            ]
+        );
+        List<CollisionObject> collisionPolygonsToReturn = [];
 
         foreach (var collisionPolygon in collisionObjects)
         {
             bool intersects = Polygon2.Intersects(
                 entityShape,
                 collisionPolygon.shape,
-                nexMovement,
+                nextMovement,
                 collisionPolygon.position * Engine.scale,
                 false
             );
 
-
-            //Debug.WriteLine(entity.position + " " + (collisionPolygon.position * Engine.scale));
-
             if (intersects)
             {
-                /*
-                //Debug.WriteLine(CalculateAngleBetweenEntityAndPolygon(entity, collisionPolygon));
-                Vector2 centerPolygon = collisionPolygon.shape.Center * Engine.scale;
-                //Vector2 LeftCenterPolygon = new Vector2(centerPolygon.X - (collisionPolygon.shape.LongestAxisLength / 2), collisionPolygon.shape.Center.Y);
-                float side2Length = (float)Math.Sqrt(Math.Pow(centerPolygon.X, 2) + Math.Pow(centerPolygon.Y, 2));
-                Vector2 rightTrianglePoint = new Vector2(centerPolygon.X, centerPolygon.Y + side2Length);
-                float minDistance = float.MaxValue;
-                Line2 minDistanceLine = null;
-
-                foreach (Line2 line in collisionPolygon.shape.Lines)
-                {
-                    float distance = Line2.Distance(line, collisionPolygon.position * Engine.scale, entity.position);
-                    if (distance < minDistance)
-                    {
-                        minDistance = distance;
-                        minDistanceLine = line;
-                    }
-                }
-                Debug.WriteLine(minDistanceLine);
-                */
-
-
                 collisionPolygonsToReturn.Add(collisionPolygon);
-                // You may perform additional collision handling here.
             }
         }
 
         return collisionPolygonsToReturn;
     }
 
-    public static float CalculateAngleBetweenEntityAndPolygon(Entity entity, CollisionObject collisionPolygon)
+    public static float CalculateAngleBetweenEntityAndPolygon(
+        Entity entity,
+        CollisionObject collisionPolygon
+    )
     {
         // Calculate the vector from the entity to the center of the collision polygon
         Vector2 vectorToCenter = entity.position - (collisionPolygon.position * Engine.scale);
@@ -125,5 +223,4 @@ public class CollisionManager
 
         return angleDegrees;
     }
-
 }

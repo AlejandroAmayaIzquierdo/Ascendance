@@ -1,8 +1,7 @@
-﻿
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using nx.entity;
@@ -15,7 +14,8 @@ public class World
 {
     private TileManager Level;
     public CollisionManager collisionManager;
-    //private List<Entity> entities;
+
+    private List<Entity> _entities = [];
     private Player player;
     public Vector2 spawn;
 
@@ -26,7 +26,7 @@ public class World
 
     public World(Game game, WorldData worldData)
     {
-        TmxMap map = new TmxMap(worldData.mapUri);
+        TmxMap map = new(worldData.mapUri);
 
         var tileset = game.Content.Load<Texture2D>(worldData.tileSetUri);
 
@@ -34,15 +34,26 @@ public class World
         var tileHeight = map.Tilesets[0].TileHeight;
         var TileSetTilesWide = tileset.Width / tileWidth;
         mainCamera = new Camera2D(Vector2.Zero);
-        Level = new TileManager(Engine.SpriteBatch, map, tileset, TileSetTilesWide, tileWidth, tileHeight, mainCamera);
+        Level = new TileManager(
+            Engine.SpriteBatch,
+            map,
+            tileset,
+            TileSetTilesWide,
+            tileWidth,
+            tileHeight,
+            mainCamera
+        );
 
-        collisionManager = new CollisionManager(map.ObjectGroups["Platforms"]);
+        LoadEntities(game, map);
+
+        collisionManager = new CollisionManager(
+            map.ObjectGroups["Platforms"],
+            [.. _entities.Where(e => e is IColider).Cast<IColider>(), player]
+        );
 
         worldHeight = map.Height * Engine.TILE_SIZE;
 
         worldWidth = map.Width * Engine.TILE_SIZE;
-
-        LoadEntities(game, map);
     }
 
     private void LoadEntities(Game game, TmxMap map)
@@ -54,11 +65,18 @@ public class World
             if (entity.Properties["type"] == null)
                 continue;
 
+            var entityWorldPosition = new Vector2((float)entity.X, (float)entity.Y) * Engine.scale;
 
             switch (entity.Properties["type"])
             {
                 case "player":
-                    player = (Player)Entity.LoadEntityByName(game, Entities.PLAYER, new Vector2((float)entity.X, (float)entity.Y) * Engine.scale);
+                    player = (Player)
+                        Entity.LoadEntityByName(game, Entities.PLAYER, entityWorldPosition);
+                    break;
+                case "bot_master":
+                    BotMaster botMaster = (BotMaster)
+                        Entity.LoadEntityByName(game, Entities.BOT_MASTER, entityWorldPosition);
+                    _entities.Add(botMaster);
                     break;
                 default:
                     break;
@@ -68,13 +86,18 @@ public class World
 
     public void Update(GameTime gameTime)
     {
+        collisionManager.Update(gameTime);
         player.Update(gameTime);
+        foreach (var entity in _entities)
+            entity.Update(gameTime);
         mainCamera.setPosition(player.position);
     }
 
     public void Draw(GameTime gameTime)
     {
         Level.Draw();
+        foreach (var entity in _entities)
+            entity.Draw(gameTime);
         player.Draw(gameTime);
     }
 }

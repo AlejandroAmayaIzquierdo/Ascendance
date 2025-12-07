@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace nx.animation;
 
-
 public class SpriteGroupAnimation
 {
     private readonly List<SpriteSheetAnimation> groups = new();
@@ -19,6 +18,7 @@ public class SpriteGroupAnimation
         groups = animations.OfType<SpriteSheetAnimation>().ToList();
         SetGroupAnimation(defaultGroup);
     }
+
     public void Update(GameTime gameTime)
     {
         _currentAnimation.Update(gameTime);
@@ -48,7 +48,9 @@ public class SpriteGroupAnimation
     {
         _currentAnimation = groups.First(t => t.SpriteSheetName == key);
     }
-    public SpriteSheetAnimation getCurrentAnimation() { return _currentAnimation; }
 
-
+    public SpriteSheetAnimation getCurrentAnimation()
+    {
+        return _currentAnimation;
+    }
 }

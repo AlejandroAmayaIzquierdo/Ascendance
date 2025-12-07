@@ -6,17 +6,28 @@ using nx.util;
 
 namespace nx.animation;
 
-
 public class SpriteSheetAnimation : AbstractAnimation
 {
     private readonly Dictionary<int, List<Texture2D>> sheets = new();
 
     public string SpriteSheetName;
     private int _currentAnimation;
-    public int CurrentAnimation { get { return _currentAnimation; } private set { SetAnimation(value); } }
+    public int CurrentAnimation
+    {
+        get { return _currentAnimation; }
+        private set { SetAnimation(value); }
+    }
 
-
-    public SpriteSheetAnimation(Entity parent, string name, Texture2D texture, int tileSizeX = Engine.TILE_SIZE, int tileSizeY = Engine.TILE_SIZE, int framerate = 0, SpriteEffects spriteEffect = SpriteEffects.None) : base(parent, texture.Width / Engine.TILE_SIZE, framerate, spriteEffect)
+    public SpriteSheetAnimation(
+        Entity parent,
+        string name,
+        Texture2D texture,
+        int tileSizeX = Engine.TILE_SIZE,
+        int tileSizeY = Engine.TILE_SIZE,
+        int framerate = 0,
+        SpriteEffects spriteEffect = SpriteEffects.None
+    )
+        : base(parent, texture.Width / Engine.TILE_SIZE, framerate, spriteEffect)
     {
         SpriteSheetName = name;
         int rows = texture.Height / tileSizeY;
@@ -41,5 +52,4 @@ public class SpriteSheetAnimation : AbstractAnimation
 
         _currentAnimation = id;
     }
-
 }

@@ -1,8 +1,8 @@
-﻿
-using System;
+﻿using System;
 using Microsoft.Xna.Framework;
 
 namespace nx.util;
+
 public class MovementUtility
 {
     public static float lerp(float fgoal, float fcurrent, float dt)
@@ -18,8 +18,16 @@ public class MovementUtility
     {
         return Math.Abs(input1 - input2) <= deviation;
     }
-    public static float Map(float value, float fromSource, float toSource, float fromTarget, float toTarget)
+
+    public static float Map(
+        float value,
+        float fromSource,
+        float toSource,
+        float fromTarget,
+        float toTarget
+    )
     {
-        return (value - fromSource) * (toTarget - fromTarget) / (toSource - fromSource) + fromTarget;
+        return (value - fromSource) * (toTarget - fromTarget) / (toSource - fromSource)
+            + fromTarget;
     }
 }

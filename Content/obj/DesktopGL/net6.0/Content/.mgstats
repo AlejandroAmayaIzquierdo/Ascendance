@@ -1,1 +1,9 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"/home/nova/Code/Ascendance/Content/assets/levels/startLevel/monochrome_sheet.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/levels/startLevel/monochrome_sheet.xnb","TextureProcessor","Texture2DContent",5233,409685,0.1676429
+"/home/nova/Code/Ascendance/Content/assets/levels/startLevel/SpriteSheet.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/levels/startLevel/SpriteSheet.xnb","TextureProcessor","Texture2DContent",10314,139349,0.0064438
+"/home/nova/Code/Ascendance/Content/assets/textures/nude/Tiny16_Nude.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/nude/Tiny16_Nude.xnb","TextureProcessor","Texture2DContent",2104,24661,0.0013194
+"/home/nova/Code/Ascendance/Content/assets/textures/player/kevin.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/player/kevin.xnb","TextureProcessor","Texture2DContent",523,9301,0.0006438
+"/home/nova/Code/Ascendance/Content/assets/textures/player/Luca.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/player/Luca.xnb","TextureProcessor","Texture2DContent",766,24661,0.0010525
+"/home/nova/Code/Ascendance/Content/assets/textures/player/Luca2.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/player/Luca2.xnb","TextureProcessor","Texture2DContent",726,13909,0.0007245
+"/home/nova/Code/Ascendance/Content/assets/textures/player/Luca3.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/player/Luca3.xnb","TextureProcessor","Texture2DContent",671,7861,0.0005928
+"/home/nova/Code/Ascendance/Content/assets/textures/player/Lucas_idle.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/player/Lucas_idle.xnb","TextureProcessor","Texture2DContent",453,6565,0.0005623

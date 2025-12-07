@@ -1,73 +1,88 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using nx.animation;
+using nx.input;
 using nx.tile;
 using nx.util;
 using nx.world;
-using SharpMath2;
 
 namespace nx.entity;
 
-class Player : Entity
+public class Player : Entity, IColider
 {
     public Engine engine;
 
     private static Player instance;
 
-    private static readonly object lockObject = new object();
-
-
-    protected const string TEXT = "assets/textures/player/kevin";
+    private static readonly Lock lockObject = new();
 
     private const float SPEED = 350.0f;
     private const float GRAVITY = -9.81f * 2;
     private const float MAX_JUMP_HEIGHT = 3.5f;
-
     private const float DECREES_VELOCITY_FACTOR = -0.7f;
+    private const float ACCELERATION = 5f;
+
+    private const string WALK_ANIMATION_PATH = "assets/textures/player/Luca_walk";
+    private const string IDLE_ANIMATION_PATH = "assets/textures/player/Lucas_idle";
+
+    private const int CELL_SPRITE_SHEET_SIZE = 18;
+
+    private const int WALK_ANIMATION_FRAMERATE = 5;
+    private const int IDLE_ANIMATION_FRAMERATE = 3;
 
     private float jumpHeight = 0.5f;
     private float timeOfJumpHeight = 0.0f;
-
 
     public Vector2 screenPosition;
 
     private readonly SpriteGroupAnimation animations;
 
+    public Rectangle CollisionsBounds => _collisionsBounds;
+    private Rectangle _collisionsBounds;
 
+    private InputManager _inputManager;
 
-    private Player(Game game, Vector2 position) : base(game, position, TEXT, true)
+    private Player(Game game, Vector2 position)
+        : base(game, position)
     {
         velocity = new(0, 0);
         velocityGoal = 0.0f;
-        collisionBounds = new((int)position.X, (int)position.Y, Engine.TILE_SIZE, Engine.TILE_SIZE);
-        screenPosition = new Vector2(position.X, Engine.screenheigth - World.worldHeight + position.Y);
+        _collisionsBounds = new(
+            (int)position.X,
+            (int)position.Y,
+            Engine.TILE_SIZE,
+            Engine.TILE_SIZE
+        );
+        screenPosition = new Vector2(
+            position.X,
+            Engine.screenHeight - World.worldHeight + position.Y
+        );
 
         engine = (Engine)game;
-
 
         var WalkAnimation = new SpriteSheetAnimation(
             this,
             "Walk",
-            game.Content.Load<Texture2D>("assets/textures/player/Luca3"),
-            18,
-            18,
-            5
+            game.Content.Load<Texture2D>(WALK_ANIMATION_PATH),
+            CELL_SPRITE_SHEET_SIZE,
+            CELL_SPRITE_SHEET_SIZE,
+            WALK_ANIMATION_FRAMERATE
         );
         var IdleAnimation = new SpriteSheetAnimation(
             this,
             "Idle",
-            game.Content.Load<Texture2D>("assets/textures/player/Lucas_idle"),
-            18,
-            18,
-            3
+            game.Content.Load<Texture2D>(IDLE_ANIMATION_PATH),
+            CELL_SPRITE_SHEET_SIZE,
+            CELL_SPRITE_SHEET_SIZE,
+            IDLE_ANIMATION_FRAMERATE
         );
 
         animations = new("Idle", WalkAnimation, IdleAnimation);
 
+        _inputManager = new();
     }
 
     public static Player GetInstance(Game game, Vector2 position)
@@ -75,65 +90,148 @@ class Player : Entity
         if (instance == null)
         {
             lock (lockObject) // Thread-safe locking
-            {
                 instance ??= new Player(game, position);
-            }
         }
         return instance;
     }
-    public static Player GetInstance()
-    {
-        return instance;
-    }
+
+    public static Player GetInstance() => instance;
 
     public override void Draw(GameTime gameTime)
     {
-        Rectangle destinationRectangle = new((int)screenPosition.X, (int)screenPosition.Y, Engine.TILE_SIZE, Engine.TILE_SIZE);
+        Rectangle destinationRectangle = new(
+            (int)screenPosition.X,
+            (int)screenPosition.Y,
+            Engine.TILE_SIZE,
+            Engine.TILE_SIZE
+        );
 
         animations.Draw(destinationRectangle);
     }
+
     public override void Update(GameTime gameTime)
     {
-        var kstate = Keyboard.GetState();
+        _inputManager.Update();
 
-        bool isSpaceBarPress = kstate.IsKeyDown(Keys.Space);
+        HandleMovementInput();
+        ApplyPhysics(gameTime);
+        UpdatePosition(gameTime);
+        CheckWorldBounds();
+        UpdateAnimations(gameTime);
 
-        if (kstate.IsKeyDown(Keys.D))
+        base.Update(gameTime);
+
+        isGrounded = false;
+    }
+
+    public void HandleMovementInput()
+    {
+        if (!isGrounded)
+            return;
+
+        if (_inputManager.IsMovingRight())
         {
-            if (isGrounded)
-            {
-                velocityGoal = 1;
-                direction = DIRECTION.RIGHT;
-                if (animations.isFlip())
-                    animations.Flip(SpriteEffects.None);
-            }
-        }
-        else if (kstate.IsKeyDown(Keys.A))
-        {
-            if (isGrounded)
-            {
-                velocityGoal = -1;
-                direction = DIRECTION.LEFT;
-                if (!animations.isFlip())
-                    animations.Flip(SpriteEffects.FlipHorizontally);
-            }
-        }
-        else
-        {
-            if (isGrounded)
-            {
-                velocityGoal = 0;
-                direction = DIRECTION.NONE;
-            }
+            velocityGoal = 1;
+            direction = DIRECTION.RIGHT;
+            if (animations.isFlip())
+                animations.Flip(SpriteEffects.None);
+            return;
         }
 
-        handleCollision();
+        if (_inputManager.IsMovingLeft())
+        {
+            velocityGoal = -1;
+            direction = DIRECTION.LEFT;
+            if (!animations.isFlip())
+                animations.Flip(SpriteEffects.FlipHorizontally);
+            return;
+        }
 
-        moveX(gameTime);
+        velocityGoal = 0;
+        direction = DIRECTION.NONE;
+    }
 
-        updateGravity(gameTime, isSpaceBarPress);
+    public void ApplyPhysics(GameTime gameTime)
+    {
+        float newVelocityX = MovementUtility.lerp(
+            velocityGoal,
+            velocity.X,
+            (float)gameTime.ElapsedGameTime.TotalSeconds * ACCELERATION
+        );
 
+        velocity = new Vector2(newVelocityX, velocity.Y);
 
+        UpdateGravity(gameTime);
+    }
+
+    public void HandleCollision(CollisionInfo[] collisions)
+    {
+        isGrounded = false;
+        foreach (var collision in collisions)
+        {
+            var collisionObject = collision.Object;
+            switch (collision.Type)
+            {
+                case CollisionType.GROUNDED:
+                    isGrounded = true;
+                    velocity.Y = 0;
+                    position.Y =
+                        (collisionObject.position.Y * Engine.scale) - _collisionsBounds.Height;
+                    break;
+                case CollisionType.HEAD:
+                    velocity.Y = 0;
+                    position.Y =
+                        collisionObject.position.Y * Engine.scale + _collisionsBounds.Height + 1; // El rectagulo de colision + la altura del jugador + un offset
+                    break;
+                case CollisionType.WALL:
+                    ChangeDirection();
+                    if (position.X <= (collisionObject.position.X * Engine.scale))
+                    {
+                        position.X =
+                            (collisionObject.position.X * Engine.scale)
+                            + collision.ContactLine.MinX
+                            - (_collisionsBounds.Width + 0.1f);
+                        screenPosition.X =
+                            (collisionObject.position.X * Engine.scale)
+                            + collision.ContactLine.MinX
+                            - (_collisionsBounds.Width + 0.1f);
+                    }
+                    else
+                    {
+                        position.X =
+                            (collisionObject.position.X * Engine.scale)
+                            + collision.ContactLine.MinX
+                            + 0.1f;
+                        screenPosition.X =
+                            (collisionObject.position.X * Engine.scale)
+                            + collision.ContactLine.MinX
+                            + 0.1f;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private void CheckWorldBounds()
+    {
+        if (position.X < 0)
+        {
+            position.X = 0;
+            screenPosition.X = 0;
+            ChangeDirection();
+        }
+        else if (position.X >= Engine.screenWidth - _collisionsBounds.Width)
+        {
+            position.X = Engine.screenWidth - _collisionsBounds.Width;
+            screenPosition.X = Engine.screenWidth - _collisionsBounds.Width;
+            ChangeDirection();
+        }
+    }
+
+    private void UpdatePosition(GameTime gameTime)
+    {
         float realSpeed = SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         position += new Vector2(velocity.X * realSpeed, velocity.Y);
@@ -141,113 +239,27 @@ class Player : Entity
         screenPosition.X = Engine.screenWidth - World.worldWidth + position.X;
 
         if (position.Y >= World.worldHeight - Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
-            screenPosition.Y = Engine.screenheigth - World.worldHeight + position.Y;
+            screenPosition.Y = Engine.screenHeight - World.worldHeight + position.Y;
         else
             screenPosition.Y = Engine.SCREEN_CENTER_Y;
 
-        collisionBounds.X = (int)position.X;
-        collisionBounds.Y = (int)position.Y;
+        _collisionsBounds.X = (int)position.X;
+        _collisionsBounds.Y = (int)position.Y;
+    }
 
+    private void UpdateAnimations(GameTime gameTime)
+    {
         if (velocityGoal == 0)
             animations.SetGroupAnimation("Idle");
         else
             animations.SetGroupAnimation("Walk");
 
         animations.Update(gameTime);
-
-        base.Update(gameTime);
     }
 
-    private void handleCollision()
+    private void UpdateGravity(GameTime gameTime)
     {
-        List<CollisionObject> collisionObjects = engine.world.collisionManager.CheckCollision(this, position);
-        Vector2 playerCenter = position + new Vector2(collisionBounds.Width / 2, collisionBounds.Height / 2);
-
-        isGrounded = false;
-
-        if (collisionObjects.Count > 0)
-        {
-            foreach (var collisionObject in collisionObjects)
-            {
-                float minDistance = float.MaxValue;
-                Line2 minDistanceLine = null;
-
-
-                foreach (Line2 line in collisionObject.shape.Lines)
-                {
-                    float distance = Line2.Distance(line, collisionObject.position * Engine.scale, playerCenter);
-                    if (distance < minDistance)
-                    {
-                        minDistance = distance;
-                        minDistanceLine = line;
-                    }
-                }
-
-                if (minDistanceLine.Horizontal)
-                {
-                    if (position.Y <= collisionObject.position.Y * Engine.scale)
-                    {
-                        isGrounded = true;
-                        velocity.Y = 0;
-                        position.Y = (collisionObject.position.Y * Engine.scale) - collisionBounds.Height;
-                    }
-                    else
-                    {
-                        velocity.Y = 0;
-                        position.Y = (collisionObject.position.Y * Engine.scale) + minDistanceLine.MaxY;
-                    }
-
-                }
-                else if (minDistanceLine.Vertical)
-                {
-                    ChangeDirection();
-                    if (position.X <= (collisionObject.position.X * Engine.scale))
-                    {
-                        position.X = (collisionObject.position.X * Engine.scale) + minDistanceLine.MinX - (collisionBounds.Width + 0.1f);
-                        screenPosition.X = (collisionObject.position.X * Engine.scale) + minDistanceLine.MinX - (collisionBounds.Width + 0.1f);
-                    }
-                    else
-                    {
-                        position.X = (collisionObject.position.X * Engine.scale) + minDistanceLine.MinX + 0.1f;
-                        screenPosition.X = (collisionObject.position.X * Engine.scale) + minDistanceLine.MinX + 0.1f;
-                    }
-
-                }
-            }
-        }
-
-        if (position.X < 0)
-        {
-            position.X = 0;
-            screenPosition.X = 0;
-            ChangeDirection();
-        }
-        else if (position.X >= Engine.screenWidth - collisionBounds.Width)
-        {
-            position.X = Engine.screenWidth - collisionBounds.Width;
-            screenPosition.X = Engine.screenWidth - collisionBounds.Width;
-            ChangeDirection();
-        }
-    }
-
-    private void ChangeDirection()
-    {
-        velocityGoal *= DECREES_VELOCITY_FACTOR;
-        velocity.X *= -1;
-        if (animations.isFlip())
-            animations.Flip(SpriteEffects.None);
-        else
-            animations.Flip(SpriteEffects.FlipHorizontally);
-
-    }
-
-    private void moveX(GameTime gameTime)
-    {
-        velocity.X = MovementUtility.lerp(velocityGoal, velocity.X, (float)gameTime.ElapsedGameTime.TotalSeconds * 15);
-    }
-
-    private void updateGravity(GameTime gameTime, bool isSpaceBarPress)
-    {
+        bool isSpaceBarPress = _inputManager.IsJumpPressed();
         if (!isGrounded)
         {
             velocity.Y -= GRAVITY * (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -257,21 +269,17 @@ class Player : Entity
         {
             velocity.Y = 0.0f;
 
-            handleJumpHeight(gameTime, isSpaceBarPress);
+            HandleJumpHeight(gameTime, isSpaceBarPress);
         }
-
-        //Debug.WriteLine(jumpHeight + " | " + direction + " " + isGrounded);
-
     }
 
-    private void handleJumpHeight(GameTime gameTime, bool isSpaceBarPress)
+    private void HandleJumpHeight(GameTime gameTime, bool isSpaceBarPress)
     {
         if (isSpaceBarPress)
         {
             velocityGoal = 0;
             velocity.X = 0;
         }
-
 
         if (isSpaceBarPress && jumpHeight <= MAX_JUMP_HEIGHT && timeOfJumpHeight >= 0.05f)
         {
@@ -288,4 +296,13 @@ class Player : Entity
         timeOfJumpHeight += (float)gameTime.ElapsedGameTime.TotalSeconds;
     }
 
+    private void ChangeDirection()
+    {
+        velocityGoal *= DECREES_VELOCITY_FACTOR;
+        velocity.X *= -1;
+        if (animations.isFlip())
+            animations.Flip(SpriteEffects.None);
+        else
+            animations.Flip(SpriteEffects.FlipHorizontally);
+    }
 }
