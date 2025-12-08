@@ -38,11 +38,14 @@ public class CollisionManager
     private readonly List<CollisionObject> collisionObjects = [];
 
     private readonly List<IColider> _entities = [];
-    private TmxObjectGroup tmxObjectGroup;
+
+    public List<IColider> Coliders => _entities;
+    private TmxObjectGroup _tmxObjectGroup;
 
     public CollisionManager(TmxObjectGroup collisionGroup, List<IColider> coliders)
     {
-        foreach (var o in collisionGroup.Objects)
+        _tmxObjectGroup = collisionGroup;
+        foreach (var o in _tmxObjectGroup.Objects)
         {
             Collection<TmxObjectPoint> tmxObjectPoints = o.Points;
 

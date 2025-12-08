@@ -121,6 +121,11 @@ public class Player : Entity, IColider
 
         base.Update(gameTime);
 
+        if (position.Y < 0)
+        {
+            Engine.World!.NextLevel();
+        }
+
         isGrounded = false;
     }
 

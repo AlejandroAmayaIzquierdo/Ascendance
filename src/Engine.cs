@@ -1,6 +1,9 @@
-﻿using Microsoft.Xna.Framework;
+﻿using ImGuiNET;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using nx.entity;
+using nx.UI;
 using nx.world;
 
 namespace nx;
@@ -21,11 +24,12 @@ public class Engine : Game
 
     public static Point viewport;
     public GraphicsDeviceManager _graphics;
-    public static SpriteBatch SpriteBatch;
     private Matrix matrix;
-    public World world;
+    public static World World = null!;
+    public static SpriteBatch SpriteBatch = null!;
 
-    private Effect _firstShader;
+    private Effect? _firstShader;
+    private ImGuiRenderer? _imguiRenderer;
 
     public Engine()
     {
@@ -33,7 +37,6 @@ public class Engine : Game
         Content.RootDirectory = "Content";
 
         IsMouseVisible = true;
-        Initialize();
     }
 
     protected override void Initialize()
@@ -50,6 +53,12 @@ public class Engine : Game
         var mapSize = new Vector2(screenWidth, screenHeight);
         matrix = Matrix.CreateScale(new Vector3(WindowSize / mapSize, 1));
 
+        // Initialize ImGui
+        _imguiRenderer = new ImGuiRenderer(this);
+        _imguiRenderer.Initialize();
+
+        LoadContent();
+
         base.Initialize();
     }
 
@@ -59,7 +68,7 @@ public class Engine : Game
 
         _firstShader = Content.Load<Effect>("assets/Effects/pixelate");
 
-        world = new World(this, WorldData.GetWorld(Worlds.LEVEL_1));
+        World = new World(this);
     }
 
     protected override void Update(GameTime gameTime)
@@ -70,7 +79,7 @@ public class Engine : Game
         )
             Exit();
 
-        world.Update(gameTime);
+        World.Update(gameTime);
 
         base.Update(gameTime);
     }
@@ -79,7 +88,8 @@ public class Engine : Game
     {
         GraphicsDevice.Clear(Color.Black);
 
-        SpriteBatch.Begin( //All of these need to be here :(
+        // Draw game
+        SpriteBatch?.Begin( //All of these need to be here :(
             SpriteSortMode.Deferred,
             samplerState: SamplerState.PointClamp,
             effect: null,
@@ -89,9 +99,18 @@ public class Engine : Game
             transformMatrix: matrix /*<-This is the main thing*/
         );
 
-        world.Draw(gameTime);
+        World.Draw(gameTime);
 
-        SpriteBatch.End();
+        SpriteBatch?.End();
+
+        _imguiRenderer?.BeforeLayout(gameTime);
+
+        ImGui.Begin("Debug Info");
+        ImGui.Text($"FPS: {1.0f / gameTime.ElapsedGameTime.TotalSeconds:F1}");
+        ImGui.Text($"Player Pos: {Player.GetInstance()?.position ?? Vector2.Zero}");
+        ImGui.End();
+
+        _imguiRenderer?.AfterLayout();
 
         base.Draw(gameTime);
     }

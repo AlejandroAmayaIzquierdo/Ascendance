@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
-using TiledSharp;
 
 namespace nx.world;
-
-public enum Worlds
-{
-    START_LEVEL,
-    LEVEL_1,
-}
 
 public class WorldData(string name, string mapUri, string tileSetUri)
 {
@@ -18,14 +9,14 @@ public class WorldData(string name, string mapUri, string tileSetUri)
     public readonly string name = name;
     public readonly string mapUri = mapUri;
     public readonly string tileSetUri = tileSetUri;
-    private static readonly Dictionary<Worlds, WorldData> data = new()
+    private static readonly Dictionary<int, WorldData> data = new()
     {
-        [Worlds.START_LEVEL] = new WorldData(
+        [1] = new WorldData(
             "start",
             "Content/assets/levels/startLevel/level.tmx",
             MONOCHROME_SHEET_PATH
         ),
-        [Worlds.LEVEL_1] = new WorldData(
+        [2] = new WorldData(
             "level_1",
             "Content/assets/levels/level_1/level.tmx",
             MONOCHROME_SHEET_PATH
@@ -37,8 +28,10 @@ public class WorldData(string name, string mapUri, string tileSetUri)
         return data.First(pair => pair.Value.name == name).Value;
     }
 
-    public static WorldData GetWorld(Worlds world)
+    public static WorldData? GetWorld(int worldID)
     {
-        return data[world];
+        if (data.ContainsKey(worldID))
+            return data[worldID];
+        return null;
     }
 }

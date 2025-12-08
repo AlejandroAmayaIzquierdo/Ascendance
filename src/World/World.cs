@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using nx.entity;
 using nx.tile;
 using TiledSharp;
@@ -10,47 +10,25 @@ namespace nx.world;
 
 public class World
 {
-    private TileManager Level;
-    public CollisionManager collisionManager;
+    private Game _game;
+    private LevelManager _levelManger;
+    public CollisionManager? collisionManager;
 
     private readonly List<Entity> _entities = [];
-    public Vector2 spawn;
 
     public static int worldHeight;
     public static int worldWidth;
 
     private Camera2D mainCamera;
 
-    public World(Game game, WorldData worldData)
+    public World(Game game)
     {
-        TmxMap map = new(worldData.mapUri);
-
-        var tileset = game.Content.Load<Texture2D>(worldData.tileSetUri);
-
-        var tileWidth = map.Tilesets[0].TileWidth;
-        var tileHeight = map.Tilesets[0].TileHeight;
-        var TileSetTilesWide = tileset.Width / tileWidth;
+        _game = game;
         mainCamera = new Camera2D(Vector2.Zero);
-        Level = new TileManager(
-            Engine.SpriteBatch,
-            map,
-            tileset,
-            TileSetTilesWide,
-            tileWidth,
-            tileHeight,
-            mainCamera
-        );
 
-        LoadEntities(game, map);
+        _levelManger = new LevelManager(game, mainCamera);
 
-        collisionManager = new CollisionManager(
-            map.ObjectGroups["Platforms"],
-            [.. _entities.Where(e => e is IColider).Cast<IColider>()]
-        );
-
-        worldHeight = map.Height * Engine.TILE_SIZE;
-
-        worldWidth = map.Width * Engine.TILE_SIZE;
+        NextLevel();
     }
 
     private void LoadEntities(Game game, TmxMap map)
@@ -83,18 +61,43 @@ public class World
         }
     }
 
+    public void NextLevel()
+    {
+        _entities.Clear();
+        _levelManger.NextLevel();
+
+        if (_levelManger.CurrentLevel is null)
+            throw new Exception("Error al cargar el siguiente mapa");
+
+        var map = _levelManger.CurrentLevel.Map;
+
+        LoadEntities(_game, map);
+
+        collisionManager = new CollisionManager(
+            map.ObjectGroups["Platforms"],
+            [.. _entities.Where(e => e is IColider).Cast<IColider>()]
+        );
+
+        worldHeight = map.Height * Engine.TILE_SIZE;
+
+        worldWidth = map.Width * Engine.TILE_SIZE;
+    }
+
     public void Update(GameTime gameTime)
     {
-        collisionManager.Update(gameTime);
-        foreach (var entity in _entities)
+        collisionManager?.Update(gameTime);
+        var entitiesToUpdate = _entities.ToList();
+        foreach (var entity in entitiesToUpdate)
             entity.Update(gameTime);
         mainCamera.SetPosition(Player.GetInstance().position);
     }
 
     public void Draw(GameTime gameTime)
     {
-        Level.Draw();
-        foreach (var entity in _entities)
+        _levelManger.CurrentLevel!.Draw();
+        var entitiesToDraw = _entities.ToList();
+
+        foreach (var entity in entitiesToDraw)
             entity.Draw(gameTime);
     }
 }

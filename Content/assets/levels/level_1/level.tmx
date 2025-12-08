@@ -63,12 +63,5 @@
    <polygon points="0,0 0,48 48,48 48,0"/>
   </object>
  </objectgroup>
- <objectgroup id="2" name="Entities">
-  <object id="1" x="216" y="713">
-   <properties>
-    <property name="type" value="player"/>
-   </properties>
-   <point/>
-  </object>
- </objectgroup>
+ <objectgroup id="2" name="Entities"/>
 </map>
