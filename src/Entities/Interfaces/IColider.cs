@@ -3,7 +3,7 @@ using nx.tile;
 
 namespace nx.entity;
 
-public interface IColider
+public interface ICollider
 {
     Rectangle CollisionsBounds { get; }
     public void HandleCollision(CollisionInfo[] other);

@@ -35,12 +35,12 @@ public class CollisionManager
 {
     public readonly List<CollisionObject> CollisionObjects = [];
 
-    private readonly List<IColider> _entities = [];
+    private readonly List<ICollider> _entities = [];
 
-    public List<IColider> Coliders => _entities;
+    public List<ICollider> Coliders => _entities;
     private TmxObjectGroup _tmxObjectGroup;
 
-    public CollisionManager(TmxObjectGroup collisionGroup, List<IColider> coliders)
+    public CollisionManager(TmxObjectGroup collisionGroup, List<ICollider> coliders)
     {
         _tmxObjectGroup = collisionGroup;
         foreach (var o in _tmxObjectGroup.Objects)
@@ -77,7 +77,7 @@ public class CollisionManager
         }
     }
 
-    public CollisionInfo[] CheckCollisionDetailed(IColider entity)
+    public CollisionInfo[] CheckCollisionDetailed(ICollider entity)
     {
         var entityShape = new Polygon2(
             [
@@ -109,7 +109,7 @@ public class CollisionManager
 
     // Calcular información detallada de la colisión
     private CollisionInfo CalculateCollisionInfo(
-        IColider entity,
+        ICollider entity,
         Vector2 entityPosition,
         CollisionObject collisionObject
     )
@@ -169,46 +169,13 @@ public class CollisionManager
         return new(collisionObject, normal, minDistance, type, minDistanceLine);
     }
 
-    // Método original mantenido para compatibilidad
-    [Obsolete]
-    public List<CollisionObject> CheckCollision(IColider entity, Vector2 nextMovement)
-    {
-        var entityShape = new Polygon2(
-            [
-                new Vector2(0, 0),
-                new Vector2(entity.CollisionsBounds.Width, 0),
-                new Vector2(0, entity.CollisionsBounds.Height),
-                new Vector2(entity.CollisionsBounds.Width, entity.CollisionsBounds.Height),
-            ]
-        );
-        List<CollisionObject> collisionPolygonsToReturn = [];
-
-        foreach (var collisionPolygon in CollisionObjects)
-        {
-            bool intersects = Polygon2.Intersects(
-                entityShape,
-                collisionPolygon.shape,
-                nextMovement,
-                collisionPolygon.position * Engine.scale,
-                false
-            );
-
-            if (intersects)
-            {
-                collisionPolygonsToReturn.Add(collisionPolygon);
-            }
-        }
-
-        return collisionPolygonsToReturn;
-    }
-
     public static float CalculateAngleBetweenEntityAndPolygon(
         Entity entity,
         CollisionObject collisionPolygon
     )
     {
         // Calculate the vector from the entity to the center of the collision polygon
-        Vector2 vectorToCenter = entity.position - (collisionPolygon.position * Engine.scale);
+        Vector2 vectorToCenter = entity.Position - (collisionPolygon.position * Engine.scale);
 
         // Calculate the angle in radians using Math.Atan2
         float angleRadians = (float)Math.Atan2(vectorToCenter.Y, vectorToCenter.X);

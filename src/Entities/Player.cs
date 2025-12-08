@@ -2,7 +2,6 @@
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using nx.animation;
 using nx.input;
 using nx.tile;
@@ -11,13 +10,25 @@ using nx.world;
 
 namespace nx.entity;
 
-public class Player : Entity, IColider
+public class Player : Entity, ICollider
 {
     public Engine engine;
 
-    private static Player instance;
+    private static Player? _instance;
 
-    private static readonly Lock lockObject = new();
+    public static Player Instance
+    {
+        get
+        {
+            if (_instance == null)
+                throw new InvalidOperationException("Player not initialized");
+            return _instance;
+        }
+    }
+
+    public static bool IsInitialized => _instance is not null;
+
+    private static readonly Lock _lock = new();
 
     private const float SPEED = 350.0f;
     private const float GRAVITY = -9.81f * 2;
@@ -36,11 +47,17 @@ public class Player : Entity, IColider
     private float jumpHeight = 0.5f;
     private float timeOfJumpHeight = 0.0f;
 
-    public Vector2 screenPosition;
+    public Vector2 ScreenPosition;
 
     private readonly SpriteGroupAnimation animations;
 
-    public Rectangle CollisionsBounds => _collisionsBounds;
+    public Rectangle CollisionsBounds =>
+        new(
+            (int)Position.X + _collisionsBounds.X,
+            (int)Position.Y + _collisionsBounds.Y,
+            _collisionsBounds.Width,
+            _collisionsBounds.Height
+        );
     private Rectangle _collisionsBounds;
 
     private InputManager _inputManager;
@@ -50,13 +67,8 @@ public class Player : Entity, IColider
     {
         velocity = new(0, 0);
         velocityGoal = 0.0f;
-        _collisionsBounds = new(
-            (int)position.X,
-            (int)position.Y,
-            Engine.TILE_SIZE,
-            Engine.TILE_SIZE
-        );
-        screenPosition = new Vector2(
+        _collisionsBounds = new(0, 0, Engine.TILE_SIZE, Engine.TILE_SIZE);
+        ScreenPosition = new Vector2(
             position.X,
             Engine.screenHeight - World.worldHeight + position.Y
         );
@@ -85,23 +97,23 @@ public class Player : Entity, IColider
         _inputManager = new();
     }
 
-    public static Player GetInstance(Game game, Vector2 position)
+    public static Player Initialize(Game game, Vector2? position)
     {
-        if (instance == null)
+        lock (_lock)
         {
-            lock (lockObject) // Thread-safe locking
-                instance ??= new Player(game, position);
-        }
-        return instance;
-    }
+            if (_instance is not null)
+                throw new InvalidOperationException("Player already initialize");
 
-    public static Player GetInstance() => instance;
+            _instance = new Player(game, position ?? Vector2.Zero);
+            return _instance;
+        }
+    }
 
     public override void Draw(GameTime gameTime)
     {
         Rectangle destinationRectangle = new(
-            (int)screenPosition.X,
-            (int)screenPosition.Y,
+            (int)ScreenPosition.X,
+            (int)ScreenPosition.Y,
             Engine.TILE_SIZE,
             Engine.TILE_SIZE
         );
@@ -111,16 +123,16 @@ public class Player : Entity, IColider
 
     public void DrawCollision(GameTime gameTime)
     {
-        Rectangle destinationRectangle = new(
-            (int)screenPosition.X,
-            (int)screenPosition.Y,
-            Engine.TILE_SIZE,
-            Engine.TILE_SIZE
+        Rectangle hitBox = new(
+            (int)ScreenPosition.X + _collisionsBounds.X,
+            (int)ScreenPosition.Y + _collisionsBounds.Y,
+            _collisionsBounds.Width,
+            _collisionsBounds.Height
         );
 
         Engine.SpriteBatch.Draw(
             engine.Content.Load<Texture2D>("assets/textures/collision_entities_box"),
-            destinationRectangle,
+            hitBox,
             Color.Red * 0.5f
         );
     }
@@ -137,7 +149,7 @@ public class Player : Entity, IColider
 
         base.Update(gameTime);
 
-        if (position.Y < 0)
+        if (Position.Y < 0)
         {
             Engine.World!.NextLevel();
         }
@@ -191,39 +203,39 @@ public class Player : Entity, IColider
         foreach (var collision in collisions)
         {
             var collisionObject = collision.Object;
+
             switch (collision.Type)
             {
                 case CollisionType.GROUNDED:
                     isGrounded = true;
                     velocity.Y = 0;
-                    position.Y =
+                    Position.Y =
                         (collisionObject.position.Y * Engine.scale) - _collisionsBounds.Height;
                     break;
                 case CollisionType.HEAD:
                     velocity.Y = 0;
-                    position.Y =
-                        collisionObject.position.Y * Engine.scale + _collisionsBounds.Height + 1; // El rectagulo de colision + la altura del jugador + un offset
+                    Position += collision.Normal;
                     break;
                 case CollisionType.WALL:
                     ChangeDirection();
-                    if (position.X <= (collisionObject.position.X * Engine.scale))
+                    if (Position.X <= (collisionObject.position.X * Engine.scale))
                     {
-                        position.X =
+                        Position.X =
                             (collisionObject.position.X * Engine.scale)
                             + collision.ContactLine.MinX
                             - (_collisionsBounds.Width + 0.1f);
-                        screenPosition.X =
+                        ScreenPosition.X =
                             (collisionObject.position.X * Engine.scale)
                             + collision.ContactLine.MinX
                             - (_collisionsBounds.Width + 0.1f);
                     }
                     else
                     {
-                        position.X =
+                        Position.X =
                             (collisionObject.position.X * Engine.scale)
                             + collision.ContactLine.MinX
                             + 0.1f;
-                        screenPosition.X =
+                        ScreenPosition.X =
                             (collisionObject.position.X * Engine.scale)
                             + collision.ContactLine.MinX
                             + 0.1f;
@@ -237,16 +249,16 @@ public class Player : Entity, IColider
 
     private void CheckWorldBounds()
     {
-        if (position.X < 0)
+        if (Position.X < 0)
         {
-            position.X = 0;
-            screenPosition.X = 0;
+            Position.X = 0;
+            ScreenPosition.X = 0;
             ChangeDirection();
         }
-        else if (position.X >= Engine.screenWidth - _collisionsBounds.Width)
+        else if (Position.X >= Engine.screenWidth - _collisionsBounds.Width)
         {
-            position.X = Engine.screenWidth - _collisionsBounds.Width;
-            screenPosition.X = Engine.screenWidth - _collisionsBounds.Width;
+            Position.X = Engine.screenWidth - _collisionsBounds.Width;
+            ScreenPosition.X = Engine.screenWidth - _collisionsBounds.Width;
             ChangeDirection();
         }
     }
@@ -255,19 +267,19 @@ public class Player : Entity, IColider
     {
         float realSpeed = SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        position += new Vector2(velocity.X * realSpeed, velocity.Y);
+        Position += new Vector2(velocity.X * realSpeed, velocity.Y);
 
-        screenPosition.X = Engine.screenWidth - World.worldWidth + position.X;
+        ScreenPosition.X = Engine.screenWidth - World.worldWidth + Position.X;
 
-        if (position.Y >= World.worldHeight - Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
-            screenPosition.Y = Engine.screenHeight - World.worldHeight + position.Y;
-        else if (position.Y < Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
-            screenPosition.Y = position.Y + Engine.TILE_SIZE;
+        if (Position.Y >= World.worldHeight - Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
+            ScreenPosition.Y = Engine.screenHeight - World.worldHeight + Position.Y;
+        else if (Position.Y < Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
+            ScreenPosition.Y = Position.Y + Engine.TILE_SIZE;
         else
-            screenPosition.Y = Engine.SCREEN_CENTER_Y;
+            ScreenPosition.Y = Engine.SCREEN_CENTER_Y;
 
-        _collisionsBounds.X = (int)position.X;
-        _collisionsBounds.Y = (int)position.Y;
+        // _collisionsBounds.X = (int)Position.X;
+        // _collisionsBounds.Y = (int)Position.Y;
     }
 
     private void UpdateAnimations(GameTime gameTime)

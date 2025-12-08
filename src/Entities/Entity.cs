@@ -19,7 +19,7 @@ public enum DIRECTION
 
 public abstract class Entity : DrawableGameComponent
 {
-    public Vector2 position;
+    public Vector2 Position;
     public Vector2 velocity;
     protected float velocityGoal;
 
@@ -39,7 +39,7 @@ public abstract class Entity : DrawableGameComponent
 
     private void InitializeEntity(Vector2 position)
     {
-        this.position = position;
+        this.Position = position;
     }
 
     public virtual void Update(GameTime gameTime, World world) { }
@@ -49,11 +49,13 @@ public abstract class Entity : DrawableGameComponent
         throw new NotImplementedException();
     }
 
-    public static Entity LoadEntityByName(Game game, Entities entity, Vector2 position)
+    public static Entity? LoadEntityByName(Game game, Entities entity, Vector2 position)
     {
         return entity switch
         {
-            Entities.PLAYER => Player.GetInstance(game, position),
+            Entities.PLAYER => Player.IsInitialized
+                ? Player.Instance
+                : Player.Initialize(game, position),
             Entities.BOT_MASTER => new BotMaster(game, position),
             _ => null,
         };

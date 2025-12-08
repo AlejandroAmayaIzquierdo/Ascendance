@@ -9,7 +9,7 @@ namespace SharpMath2
 {
     /// <summary>
     /// Describes a line that's projected onto a specified axis. This is a useful
-    /// mathematical concept. Axis aligned lines *do* have position because they 
+    /// mathematical concept. Axis aligned lines *do* have position because they
     /// are only used as an interim calculation, where position won't change.
     /// </summary>
     public class AxisAlignedLine2
@@ -54,7 +54,9 @@ namespace SharpMath2
         public static bool Intersects(AxisAlignedLine2 line1, AxisAlignedLine2 line2, bool strict)
         {
             if (line1.Axis != line2.Axis)
-                throw new ArgumentException($"Lines {line1} and {line2} are not aligned - you will need to convert to Line2 to check intersection.");
+                throw new ArgumentException(
+                    $"Lines {line1} and {line2} are not aligned - you will need to convert to Line2 to check intersection."
+                );
 
             return Intersects(line1.Min, line1.Max, line2.Min, line2.Max, strict, false);
         }
@@ -68,7 +70,9 @@ namespace SharpMath2
         public static float? IntersectMTV(AxisAlignedLine2 line1, AxisAlignedLine2 line2)
         {
             if (line1.Axis != line2.Axis)
-                throw new ArgumentException($"Lines {line1} and {line2} are not aligned - you will need to convert to Line2 to check intersection.");
+                throw new ArgumentException(
+                    $"Lines {line1} and {line2} are not aligned - you will need to convert to Line2 to check intersection."
+                );
 
             return IntersectMTV(line1.Min, line1.Max, line2.Min, line2.Max, false);
         }
@@ -95,11 +99,19 @@ namespace SharpMath2
         /// <param name="strict">If overlap is required for intersection</param>
         /// <param name="correctMinMax">If true (default true) mins and maxes will be swapped if in the wrong order</param>
         /// <returns>If (min1, max1) intersects (min2, max2)</returns>
-        public static bool Intersects(float min1, float max1, float min2, float max2, bool strict, bool correctMinMax = true)
+        public static bool Intersects(
+            float min1,
+            float max1,
+            float min2,
+            float max2,
+            bool strict,
+            bool correctMinMax = true
+        )
         {
             if (correctMinMax)
             {
-                float tmp1 = min1, tmp2 = max1;
+                float tmp1 = min1,
+                    tmp2 = max1;
                 min1 = Math.Min(tmp1, tmp2);
                 max1 = Math.Max(tmp1, tmp2);
 
@@ -107,13 +119,14 @@ namespace SharpMath2
                 tmp2 = max2;
                 min2 = Math.Min(tmp1, tmp2);
                 max2 = Math.Max(tmp1, tmp2);
-
             }
 
             if (strict)
-                return (min1 <= min2 && max1 > min2 + Math2.DEFAULT_EPSILON) || (min2 <= min1 && max2 > min1 + Math2.DEFAULT_EPSILON);
+                return (min1 <= min2 && max1 > min2 + Math2.DEFAULT_EPSILON)
+                    || (min2 <= min1 && max2 > min1 + Math2.DEFAULT_EPSILON);
             else
-                return (min1 <= min2 && max1 > min2 - Math2.DEFAULT_EPSILON) || (min2 <= min1 && max2 > min1 - Math2.DEFAULT_EPSILON);
+                return (min1 <= min2 && max1 > min2 - Math2.DEFAULT_EPSILON)
+                    || (min2 <= min1 && max2 > min1 - Math2.DEFAULT_EPSILON);
         }
 
         /// <summary>
@@ -126,11 +139,18 @@ namespace SharpMath2
         /// <param name="max2">Line 2 max</param>
         /// <param name="correctMinMax">If mins and maxs might be reversed</param>
         /// <returns>a number to move along the projected axis (positive or negative) or null if no intersection</returns>
-        public static float? IntersectMTV(float min1, float max1, float min2, float max2, bool correctMinMax = true)
+        public static float? IntersectMTV(
+            float min1,
+            float max1,
+            float min2,
+            float max2,
+            bool correctMinMax = true
+        )
         {
             if (correctMinMax)
             {
-                float tmp1 = min1, tmp2 = max1;
+                float tmp1 = min1,
+                    tmp2 = max1;
                 min1 = Math.Min(tmp1, tmp2);
                 max1 = Math.Max(tmp1, tmp2);
 
@@ -156,11 +176,18 @@ namespace SharpMath2
         /// <param name="strict">If edges are excluded</param>
         /// <param name="correctMinMax">if true (default true) min and max will be swapped if in the wrong order</param>
         /// <returns>if line (min, max) contains point</returns>
-        public static bool Contains(float min, float max, float point, bool strict, bool correctMinMax = true)
+        public static bool Contains(
+            float min,
+            float max,
+            float point,
+            bool strict,
+            bool correctMinMax = true
+        )
         {
             if (correctMinMax)
             {
-                float tmp1 = min, tmp2 = max;
+                float tmp1 = min,
+                    tmp2 = max;
                 min = Math.Min(tmp1, tmp2);
                 max = Math.Max(tmp1, tmp2);
             }
@@ -204,11 +231,17 @@ namespace SharpMath2
         /// <param name="max">Maximum of line.</param>
         /// <param name="point">Point to check.</param>
         /// <param name="correctMinMax">If set to <c>true</c> will correct minimum max being reversed if they are</param>
-        public static float? MinDistance(float min, float max, float point, bool correctMinMax = true)
+        public static float? MinDistance(
+            float min,
+            float max,
+            float point,
+            bool correctMinMax = true
+        )
         {
             if (correctMinMax)
             {
-                float tmp1 = min, tmp2 = max;
+                float tmp1 = min,
+                    tmp2 = max;
                 min = Math.Min(tmp1, tmp2);
                 max = Math.Max(tmp1, tmp2);
             }
@@ -231,11 +264,18 @@ namespace SharpMath2
         /// <param name="min2">Min2.</param>
         /// <param name="max2">Max2.</param>
         /// <param name="correctMinMax">If set to <c>true</c> correct minimum max being potentially reversed.</param>
-        public static float? MinDistance(float min1, float max1, float min2, float max2, bool correctMinMax = true)
+        public static float? MinDistance(
+            float min1,
+            float max1,
+            float min2,
+            float max2,
+            bool correctMinMax = true
+        )
         {
             if (correctMinMax)
             {
-                float tmp1 = min1, tmp2 = max1;
+                float tmp1 = min1,
+                    tmp2 = max1;
                 min1 = Math.Min(tmp1, tmp2);
                 max1 = Math.Max(tmp1, tmp2);
 

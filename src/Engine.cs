@@ -97,7 +97,10 @@ public class Engine : Game
             transformMatrix: matrix /*<-This is the main thing*/
         );
 
-        World.Draw(gameTime, _showCollision);
+        World.Draw(gameTime);
+
+        if (_showCollision)
+            World.DrawDebug(gameTime);
 
         SpriteBatch?.End();
 
@@ -106,9 +109,9 @@ public class Engine : Game
         ImGui.Begin("Debug Info");
         ImGui.Text($"FPS: {1.0f / gameTime.ElapsedGameTime.TotalSeconds:F1}");
         ImGui.Text($"World size: {World.worldWidth} x {World.worldHeight}");
-        ImGui.Text($"Player Pos: {Player.GetInstance()?.position ?? Vector2.Zero}");
-        ImGui.Text($"Player screen pos: {Player.GetInstance()?.screenPosition ?? Vector2.Zero}");
-        ImGui.Text($"Camera Pos: {World.MainCamera.position}");
+        ImGui.Text($"Player Pos: {Player.Instance?.Position ?? Vector2.Zero}");
+        ImGui.Text($"Player screen pos: {Player.Instance?.ScreenPosition ?? Vector2.Zero}");
+        ImGui.Text($"Camera Pos: {World.MainCamera.Position}");
         ImGui.End();
 
         ImGui.Begin("Debug Controllers");

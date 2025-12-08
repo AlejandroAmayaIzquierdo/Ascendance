@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Diagnostics;
 using Microsoft.Xna.Framework;
-using nx.entity;
 
 namespace nx.world;
 
 public class Camera2D
 {
-    public Vector2 position;
+    public Vector2 Position;
     public CameraBehavior behavior;
 
     public Vector2 minLimits;
@@ -15,7 +13,7 @@ public class Camera2D
 
     public Camera2D(Vector2 pos)
     {
-        position = pos;
+        Position = pos;
         behavior = CameraBehavior.FOLLOW;
 
         float yLimit = World.worldHeight - Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE;
@@ -38,7 +36,7 @@ public class Camera2D
             float x = isPastXLimits ? maxLimits.X : newPos.X;
             float y = isPastYLimits ? closedYLimit : newPos.Y;
 
-            position = new Vector2(x, y);
+            Position = new Vector2(x, y);
         }
 
         return this;

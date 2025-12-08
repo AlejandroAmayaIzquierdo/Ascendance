@@ -64,7 +64,7 @@ public class TileManager(
                 );
                 Rectangle screenRect = new(
                     worldSpaceX,
-                    (int)(Engine.SCREEN_CENTER_Y - _mainCamera.position.Y + worldSpaceY),
+                    (int)(Engine.SCREEN_CENTER_Y - _mainCamera.Position.Y + worldSpaceY),
                     Engine.TILE_SIZE,
                     Engine.TILE_SIZE
                 );

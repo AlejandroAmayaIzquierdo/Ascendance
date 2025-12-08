@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using nx.entity;
 using nx.tile;
 using nx.util;
@@ -12,16 +11,16 @@ namespace nx.world;
 
 public class World
 {
-    private Game _game;
-    private LevelManager _levelManger;
+    private readonly Game _game;
+    private readonly LevelManager _levelManger;
+    private readonly List<Entity> _entities = [];
+
     public CollisionManager? collisionManager;
 
-    private readonly List<Entity> _entities = [];
+    public Camera2D MainCamera;
 
     public static int worldHeight;
     public static int worldWidth;
-
-    public Camera2D MainCamera;
 
     public World(Game game)
     {
@@ -77,7 +76,7 @@ public class World
 
         collisionManager = new CollisionManager(
             map.ObjectGroups["Platforms"],
-            [.. _entities.Where(e => e is IColider).Cast<IColider>()]
+            [.. _entities.Where(e => e is ICollider).Cast<ICollider>()]
         );
 
         worldHeight = map.Height * Engine.TILE_SIZE;
@@ -91,48 +90,50 @@ public class World
         var entitiesToUpdate = _entities.ToList();
         foreach (var entity in entitiesToUpdate)
             entity.Update(gameTime);
-        MainCamera.SetPosition(Player.GetInstance().position);
+
+        if (Player.IsInitialized)
+            MainCamera.SetPosition(Player.Instance.Position);
     }
 
-    public void Draw(GameTime gameTime, bool showCollision = false)
+    public void Draw(GameTime gameTime)
     {
         _levelManger.CurrentLevel!.Draw();
         var entitiesToDraw = _entities.ToList();
 
         foreach (var entity in entitiesToDraw)
             entity.Draw(gameTime);
+    }
 
-        if (showCollision)
+    public void DrawDebug(GameTime gameTime)
+    {
+        foreach (var colider in collisionManager?.Coliders ?? [])
+            colider.DrawCollision(gameTime);
+
+        foreach (var collisionObject in collisionManager?.CollisionObjects ?? [])
         {
-            foreach (var colider in collisionManager?.Coliders ?? [])
-                colider.DrawCollision(gameTime);
+            var currentCameraPosition = MainCamera.Position;
 
-            foreach (var collisionObject in collisionManager?.CollisionObjects ?? [])
+            Vector2 objectPosition = new()
             {
-                var currentCameraPosition = MainCamera.position;
+                X = collisionObject.position.X * Engine.scale,
+                Y =
+                    (collisionObject.position.Y * Engine.scale)
+                    - currentCameraPosition.Y
+                    + Engine.SCREEN_CENTER_Y,
+            };
 
-                Vector2 objectPosition = new()
-                {
-                    X = collisionObject.position.X * Engine.scale,
-                    Y =
-                        (collisionObject.position.Y * Engine.scale)
-                        - currentCameraPosition.Y
-                        + Engine.SCREEN_CENTER_Y,
-                };
+            foreach (var line in collisionObject.shape.Lines)
+            {
+                var startPos = new Vector2(
+                    objectPosition.X + line.MinX,
+                    objectPosition.Y + line.MinY
+                );
+                var endPos = new Vector2(
+                    objectPosition.X + line.MaxX,
+                    objectPosition.Y + line.MaxY
+                );
 
-                foreach (var line in collisionObject.shape.Lines)
-                {
-                    var startPos = new Vector2(
-                        objectPosition.X + line.MinX,
-                        objectPosition.Y + line.MinY
-                    );
-                    var endPos = new Vector2(
-                        objectPosition.X + line.MaxX,
-                        objectPosition.Y + line.MaxY
-                    );
-
-                    Engine.SpriteBatch.DrawLineBetween(startPos, endPos, 2, Color.Yellow);
-                }
+                Engine.SpriteBatch.DrawLineBetween(startPos, endPos, 2, Color.Yellow);
             }
         }
     }
