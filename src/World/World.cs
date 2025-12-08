@@ -13,6 +13,7 @@ public class World
 {
     private readonly Game _game;
     private readonly LevelManager _levelManger;
+
     private readonly List<Entity> _entities = [];
 
     public CollisionManager? collisionManager;
@@ -46,12 +47,17 @@ public class World
             switch (entity.Properties["type"])
             {
                 case "player":
-                    newEntity = (Player)
-                        Entity.LoadEntityByName(game, Entities.PLAYER, entityWorldPosition);
+                    if (Player.IsInitialized)
+                        newEntity = Player.Instance;
+                    else
+                        newEntity = Player.Initialize(game, entityWorldPosition);
                     break;
                 case "bot_master":
-                    newEntity = (BotMaster)
-                        Entity.LoadEntityByName(game, Entities.BOT_MASTER, entityWorldPosition);
+                    newEntity = Entity.LoadEntityByName(
+                        game,
+                        Entities.BOT_MASTER,
+                        entityWorldPosition
+                    );
                     break;
                 default:
                     break;
@@ -59,6 +65,17 @@ public class World
 
             if (newEntity is not null)
                 _entities.Add(newEntity);
+        }
+        var isPlayerOnWorld = _entities.FirstOrDefault(entity => entity is Player);
+        if (Player.IsInitialized)
+        {
+            if (Player.Instance.Position.Y < 0)
+                Player.Instance.Position.Y = worldHeight;
+            if (Player.Instance.Position.Y > worldHeight)
+                Player.Instance.Position.Y = 0;
+
+            if (isPlayerOnWorld is null)
+                _entities.Add(Player.Instance);
         }
     }
 
@@ -72,16 +89,36 @@ public class World
 
         var map = _levelManger.CurrentLevel.Map;
 
+        worldHeight = map.Height * Engine.TILE_SIZE;
+        worldWidth = map.Width * Engine.TILE_SIZE;
+
         LoadEntities(_game, map);
 
         collisionManager = new CollisionManager(
             map.ObjectGroups["Platforms"],
             [.. _entities.Where(e => e is ICollider).Cast<ICollider>()]
         );
+    }
+
+    public void PreviousLevel()
+    {
+        _entities.Clear();
+        _levelManger.PreviousLevel();
+
+        if (_levelManger.CurrentLevel is null)
+            throw new Exception("Error al cargar el siguiente mapa");
+
+        var map = _levelManger.CurrentLevel.Map;
 
         worldHeight = map.Height * Engine.TILE_SIZE;
-
         worldWidth = map.Width * Engine.TILE_SIZE;
+
+        LoadEntities(_game, map);
+
+        collisionManager = new CollisionManager(
+            map.ObjectGroups["Platforms"],
+            [.. _entities.Where(e => e is ICollider).Cast<ICollider>()]
+        );
     }
 
     public void Update(GameTime gameTime)

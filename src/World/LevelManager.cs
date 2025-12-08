@@ -29,21 +29,51 @@ public class LevelManager
         // 1. Mover current a previous
         _previousLevel = _currentLevel;
 
-        // 2. Si ya teníamos el siguiente nivel pre-cargado, úsalo
+        // 2. Avanzar al siguiente nivel
+        _worldIndex++;
+
+        // 3. Si ya teníamos el siguiente nivel pre-cargado, úsalo
         if (_nextLevel is not null)
         {
             _currentLevel = _nextLevel;
-            _nextLevel = null; // Limpiamos para cargar uno nuevo después
+            _nextLevel = null;
         }
         else
         {
-            // 3. Si no había siguiente nivel, cargar el actual
-            _worldIndex++;
             _currentLevel = LoadLevel(_worldIndex);
         }
 
         // 4. Pre-cargar el siguiente nivel para la próxima vez
         _nextLevel = LoadLevel(_worldIndex + 1);
+    }
+
+    public void PreviousLevel()
+    {
+        if (_worldIndex == 1)
+        {
+            System.Console.WriteLine("Ya estás en el primer nivel");
+            return;
+        }
+
+        // 1. Mover current a next
+        _nextLevel = _currentLevel;
+
+        // 2. Retroceder índice
+        _worldIndex--;
+
+        // 3. Si ya teníamos el nivel anterior pre-cargado, úsalo
+        if (_previousLevel is not null)
+        {
+            _currentLevel = _previousLevel;
+            _previousLevel = null;
+        }
+        else
+        {
+            _currentLevel = LoadLevel(_worldIndex);
+        }
+
+        // 4. Pre-cargar el nivel anterior para la próxima vez
+        _previousLevel = LoadLevel(_worldIndex - 1);
     }
 
     public TileManager? LoadLevel(int index)

@@ -32,6 +32,7 @@ public class Player : Entity, ICollider
 
     private const float SPEED = 350.0f;
     private const float GRAVITY = -9.81f * 2;
+    private const float MAX_GRAVITY_VELOCITY = 25f;
     private const float MAX_JUMP_HEIGHT = 3.5f;
     private const float DECREES_VELOCITY_FACTOR = -0.7f;
     private const float ACCELERATION = 10f;
@@ -67,7 +68,7 @@ public class Player : Entity, ICollider
     {
         velocity = new(0, 0);
         velocityGoal = 0.0f;
-        _collisionsBounds = new(0, 0, Engine.TILE_SIZE, Engine.TILE_SIZE);
+        _collisionsBounds = new(Engine.TILE_SIZE / 4, 16, Engine.TILE_SIZE / 2, 16);
         ScreenPosition = new Vector2(
             position.X,
             Engine.screenHeight - World.worldHeight + position.Y
@@ -147,14 +148,18 @@ public class Player : Entity, ICollider
         CheckWorldBounds();
         UpdateAnimations(gameTime);
 
-        base.Update(gameTime);
-
         if (Position.Y < 0)
         {
             Engine.World!.NextLevel();
         }
+        else if (Position.Y > World.worldHeight)
+        {
+            Engine.World!.PreviousLevel();
+        }
 
         isGrounded = false;
+
+        base.Update(gameTime);
     }
 
     public void HandleMovementInput()
@@ -210,7 +215,9 @@ public class Player : Entity, ICollider
                     isGrounded = true;
                     velocity.Y = 0;
                     Position.Y =
-                        (collisionObject.position.Y * Engine.scale) - _collisionsBounds.Height;
+                        (collisionObject.position.Y * Engine.scale)
+                        - _collisionsBounds.Height
+                        - _collisionsBounds.Y;
                     break;
                 case CollisionType.HEAD:
                     velocity.Y = 0;
@@ -218,28 +225,7 @@ public class Player : Entity, ICollider
                     break;
                 case CollisionType.WALL:
                     ChangeDirection();
-                    if (Position.X <= (collisionObject.position.X * Engine.scale))
-                    {
-                        Position.X =
-                            (collisionObject.position.X * Engine.scale)
-                            + collision.ContactLine.MinX
-                            - (_collisionsBounds.Width + 0.1f);
-                        ScreenPosition.X =
-                            (collisionObject.position.X * Engine.scale)
-                            + collision.ContactLine.MinX
-                            - (_collisionsBounds.Width + 0.1f);
-                    }
-                    else
-                    {
-                        Position.X =
-                            (collisionObject.position.X * Engine.scale)
-                            + collision.ContactLine.MinX
-                            + 0.1f;
-                        ScreenPosition.X =
-                            (collisionObject.position.X * Engine.scale)
-                            + collision.ContactLine.MinX
-                            + 0.1f;
-                    }
+                    Position += collision.Normal;
                     break;
                 default:
                     break;
@@ -273,13 +259,10 @@ public class Player : Entity, ICollider
 
         if (Position.Y >= World.worldHeight - Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
             ScreenPosition.Y = Engine.screenHeight - World.worldHeight + Position.Y;
-        else if (Position.Y < Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
-            ScreenPosition.Y = Position.Y + Engine.TILE_SIZE;
+        else if (Position.Y < Engine.SCREEN_CENTER_Y)
+            ScreenPosition.Y = Position.Y;
         else
             ScreenPosition.Y = Engine.SCREEN_CENTER_Y;
-
-        // _collisionsBounds.X = (int)Position.X;
-        // _collisionsBounds.Y = (int)Position.Y;
     }
 
     private void UpdateAnimations(GameTime gameTime)
@@ -297,7 +280,8 @@ public class Player : Entity, ICollider
         bool isSpaceBarPress = _inputManager.IsJumpPressed();
         if (!isGrounded)
         {
-            velocity.Y -= GRAVITY * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (velocity.Y < MAX_GRAVITY_VELOCITY)
+                velocity.Y -= GRAVITY * (float)gameTime.ElapsedGameTime.TotalSeconds;
             jumpHeight = 0;
         }
         else

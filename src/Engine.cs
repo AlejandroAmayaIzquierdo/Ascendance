@@ -108,14 +108,15 @@ public class Engine : Game
 
         ImGui.Begin("Debug Info");
         ImGui.Text($"FPS: {1.0f / gameTime.ElapsedGameTime.TotalSeconds:F1}");
-        ImGui.Text($"World size: {World.worldWidth} x {World.worldHeight}");
         ImGui.Text($"Player Pos: {Player.Instance?.Position ?? Vector2.Zero}");
         ImGui.Text($"Player screen pos: {Player.Instance?.ScreenPosition ?? Vector2.Zero}");
+        ImGui.Text($"Player velocity: {Player.Instance?.velocity}");
         ImGui.Text($"Camera Pos: {World.MainCamera.Position}");
         ImGui.End();
 
         ImGui.Begin("Debug Controllers");
         ImGui.Checkbox("Show Collisions", ref _showCollision);
+        ImGui.SliderFloat("Heigh Player", ref Player.Instance.Position.Y, 1443, 0);
         ImGui.End();
 
         _imguiRenderer?.AfterLayout();

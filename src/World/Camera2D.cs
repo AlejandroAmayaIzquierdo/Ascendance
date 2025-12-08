@@ -20,7 +20,7 @@ public class Camera2D
         float xLimit = World.worldWidth - Engine.SCREEN_CENTER_X - Engine.TILE_SIZE;
 
         maxLimits = new(xLimit, yLimit);
-        minLimits = new(0, Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE);
+        minLimits = new(0, Engine.SCREEN_CENTER_Y);
     }
 
     public Camera2D(float x, float y)
