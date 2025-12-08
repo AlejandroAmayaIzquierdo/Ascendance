@@ -7,4 +7,6 @@ public interface IColider
 {
     Rectangle CollisionsBounds { get; }
     public void HandleCollision(CollisionInfo[] other);
+
+    public void DrawCollision(GameTime gameTime) { }
 }

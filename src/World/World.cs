@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using nx.entity;
 using nx.tile;
+using nx.util;
 using TiledSharp;
 
 namespace nx.world;
@@ -19,14 +21,14 @@ public class World
     public static int worldHeight;
     public static int worldWidth;
 
-    private Camera2D mainCamera;
+    public Camera2D MainCamera;
 
     public World(Game game)
     {
         _game = game;
-        mainCamera = new Camera2D(Vector2.Zero);
+        MainCamera = new Camera2D(Vector2.Zero);
 
-        _levelManger = new LevelManager(game, mainCamera);
+        _levelManger = new LevelManager(game, MainCamera);
 
         NextLevel();
     }
@@ -89,15 +91,49 @@ public class World
         var entitiesToUpdate = _entities.ToList();
         foreach (var entity in entitiesToUpdate)
             entity.Update(gameTime);
-        mainCamera.SetPosition(Player.GetInstance().position);
+        MainCamera.SetPosition(Player.GetInstance().position);
     }
 
-    public void Draw(GameTime gameTime)
+    public void Draw(GameTime gameTime, bool showCollision = false)
     {
         _levelManger.CurrentLevel!.Draw();
         var entitiesToDraw = _entities.ToList();
 
         foreach (var entity in entitiesToDraw)
             entity.Draw(gameTime);
+
+        if (showCollision)
+        {
+            foreach (var colider in collisionManager?.Coliders ?? [])
+                colider.DrawCollision(gameTime);
+
+            foreach (var collisionObject in collisionManager?.CollisionObjects ?? [])
+            {
+                var currentCameraPosition = MainCamera.position;
+
+                Vector2 objectPosition = new()
+                {
+                    X = collisionObject.position.X * Engine.scale,
+                    Y =
+                        (collisionObject.position.Y * Engine.scale)
+                        - currentCameraPosition.Y
+                        + Engine.SCREEN_CENTER_Y,
+                };
+
+                foreach (var line in collisionObject.shape.Lines)
+                {
+                    var startPos = new Vector2(
+                        objectPosition.X + line.MinX,
+                        objectPosition.Y + line.MinY
+                    );
+                    var endPos = new Vector2(
+                        objectPosition.X + line.MaxX,
+                        objectPosition.Y + line.MaxY
+                    );
+
+                    Engine.SpriteBatch.DrawLineBetween(startPos, endPos, 2, Color.Yellow);
+                }
+            }
+        }
     }
 }

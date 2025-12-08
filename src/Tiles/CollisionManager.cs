@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.Xna.Framework;
 using nx.entity;
 using SharpMath2;
@@ -35,7 +33,7 @@ public record CollisionInfo(
 
 public class CollisionManager
 {
-    private readonly List<CollisionObject> collisionObjects = [];
+    public readonly List<CollisionObject> CollisionObjects = [];
 
     private readonly List<IColider> _entities = [];
 
@@ -60,7 +58,7 @@ public class CollisionManager
                 )),
             ];
 
-            collisionObjects.Add(
+            CollisionObjects.Add(
                 new CollisionObject(new Vector2((float)o.X, (float)o.Y), new Polygon2(vertices))
             );
 
@@ -92,7 +90,7 @@ public class CollisionManager
         List<CollisionInfo> collisionInfos = [];
         Vector2 entityPosition = new(entity.CollisionsBounds.X, entity.CollisionsBounds.Y);
 
-        foreach (var collisionObject in collisionObjects)
+        foreach (var collisionObject in CollisionObjects)
         {
             bool intersects = Polygon2.Intersects(
                 entityShape,
@@ -185,7 +183,7 @@ public class CollisionManager
         );
         List<CollisionObject> collisionPolygonsToReturn = [];
 
-        foreach (var collisionPolygon in collisionObjects)
+        foreach (var collisionPolygon in CollisionObjects)
         {
             bool intersects = Polygon2.Intersects(
                 entityShape,

@@ -22,13 +22,13 @@ public class Engine : Game
     public const int SCREEN_CENTER_X = Engine.screenWidth / 2 - (Engine.TILE_SIZE / 2);
     public const int SCREEN_CENTER_Y = Engine.screenHeight / 2 - (Engine.TILE_SIZE / 2);
 
+    private bool _showCollision = false;
+
     public static Point viewport;
     public GraphicsDeviceManager _graphics;
     private Matrix matrix;
     public static World World = null!;
     public static SpriteBatch SpriteBatch = null!;
-
-    private Effect? _firstShader;
     private ImGuiRenderer? _imguiRenderer;
 
     public Engine()
@@ -66,8 +66,6 @@ public class Engine : Game
     {
         SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-        _firstShader = Content.Load<Effect>("assets/Effects/pixelate");
-
         World = new World(this);
     }
 
@@ -99,7 +97,7 @@ public class Engine : Game
             transformMatrix: matrix /*<-This is the main thing*/
         );
 
-        World.Draw(gameTime);
+        World.Draw(gameTime, _showCollision);
 
         SpriteBatch?.End();
 
@@ -107,7 +105,14 @@ public class Engine : Game
 
         ImGui.Begin("Debug Info");
         ImGui.Text($"FPS: {1.0f / gameTime.ElapsedGameTime.TotalSeconds:F1}");
+        ImGui.Text($"World size: {World.worldWidth} x {World.worldHeight}");
         ImGui.Text($"Player Pos: {Player.GetInstance()?.position ?? Vector2.Zero}");
+        ImGui.Text($"Player screen pos: {Player.GetInstance()?.screenPosition ?? Vector2.Zero}");
+        ImGui.Text($"Camera Pos: {World.MainCamera.position}");
+        ImGui.End();
+
+        ImGui.Begin("Debug Controllers");
+        ImGui.Checkbox("Show Collisions", ref _showCollision);
         ImGui.End();
 
         _imguiRenderer?.AfterLayout();

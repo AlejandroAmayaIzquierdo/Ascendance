@@ -109,6 +109,22 @@ public class Player : Entity, IColider
         animations.Draw(destinationRectangle);
     }
 
+    public void DrawCollision(GameTime gameTime)
+    {
+        Rectangle destinationRectangle = new(
+            (int)screenPosition.X,
+            (int)screenPosition.Y,
+            Engine.TILE_SIZE,
+            Engine.TILE_SIZE
+        );
+
+        Engine.SpriteBatch.Draw(
+            engine.Content.Load<Texture2D>("assets/textures/collision_entities_box"),
+            destinationRectangle,
+            Color.Red * 0.5f
+        );
+    }
+
     public override void Update(GameTime gameTime)
     {
         _inputManager.Update();

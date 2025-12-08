@@ -1,5 +1,7 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
 "/home/nova/Code/Ascendance/Content/assets/textures/BotMaster/BotMaster_idle.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/BotMaster/BotMaster_idle.xnb","TextureProcessor","Texture2DContent",383,6565,0.1288745
+"/home/nova/Code/Ascendance/Content/assets/textures/collision_box.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/collision_box.xnb","TextureProcessor","Texture2DContent",480,202585,0.0100572
+"/home/nova/Code/Ascendance/Content/assets/textures/collision_entities_box.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/collision_entities_box.xnb","TextureProcessor","Texture2DContent",5508,2405685,0.2336529
 "/home/nova/Code/Ascendance/Content/assets/textures/monochrome_sheet.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/monochrome_sheet.xnb","TextureProcessor","Texture2DContent",5233,409685,0.1961542
 "/home/nova/Code/Ascendance/Content/assets/textures/player/Luca_walk.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/player/Luca_walk.xnb","TextureProcessor","Texture2DContent",671,7861,0.1206129
 "/home/nova/Code/Ascendance/Content/assets/textures/player/Lucas_idle.png","/home/nova/Code/Ascendance/Content/bin/DesktopGL/Content/assets/textures/player/Lucas_idle.xnb","TextureProcessor","Texture2DContent",453,6565,0.0007838
