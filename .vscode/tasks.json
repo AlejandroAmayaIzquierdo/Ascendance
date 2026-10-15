@@ -1,11 +1,41 @@
 {
-    "label": "build-and-run",
-    "type": "shell",
-    "command": "${workspaceFolder}/build_and_run.bat",
-    "options": {
-        "cwd": "${workspaceFolder}"
-    },
-    "presentation": {
-        "reveal": "always"
-    }
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "buildDesktopGL",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/Ascendance.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "run",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceFolder}/Ascendance.csproj"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
 }
