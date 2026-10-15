@@ -1,7 +1,7 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.Xna.Framework;
 
 namespace SharpMath2
 {
@@ -51,9 +51,9 @@ namespace SharpMath2
 
             return c1.Radius != c2.Radius;
         }
-        
+
         /// <summary>
-        /// Determines if this circle is logically the same as the 
+        /// Determines if this circle is logically the same as the
         /// specified object.
         /// </summary>
         /// <param name="obj">The object to compare against</param>
@@ -86,14 +86,16 @@ namespace SharpMath2
         /// <returns>If the circle at pos contains point</returns>
         public static bool Contains(Circle2 circle, Vector2 pos, Vector2 point, bool strict)
         {
-            var distSq = (point - new Vector2(pos.X + circle.Radius, pos.Y + circle.Radius)).LengthSquared();
+            var distSq = (
+                point - new Vector2(pos.X + circle.Radius, pos.Y + circle.Radius)
+            ).LengthSquared();
 
             if (strict)
                 return distSq < circle.Radius * circle.Radius;
             else
                 return distSq <= circle.Radius * circle.Radius;
         }
-        
+
         /// <summary>
         /// Determines if the first circle at the specified position intersects the second circle
         /// at the specified position.
@@ -104,7 +106,13 @@ namespace SharpMath2
         /// <param name="pos2">Top-left of the bounding box of the second circle</param>
         /// <param name="strict">If overlap is required for intersection</param>
         /// <returns>If circle1 at pos1 intersects circle2 at pos2</returns>
-        public static bool Intersects(Circle2 circle1, Circle2 circle2, Vector2 pos1, Vector2 pos2, bool strict)
+        public static bool Intersects(
+            Circle2 circle1,
+            Circle2 circle2,
+            Vector2 pos1,
+            Vector2 pos2,
+            bool strict
+        )
         {
             return Intersects(circle1.Radius, circle2.Radius, pos1, pos2, strict);
         }
@@ -119,7 +127,13 @@ namespace SharpMath2
         /// <param name="pos2">Top-left of the bounding box of the second circle</param>
         /// <param name="strict">If overlap is required for intersection</param>
         /// <returns>If circle1 of radius=radius1, topleft=pos1 intersects circle2 of radius=radius2, topleft=pos2</returns>
-        public static bool Intersects(float radius1, float radius2, Vector2 pos1, Vector2 pos2, bool strict)
+        public static bool Intersects(
+            float radius1,
+            float radius2,
+            Vector2 pos1,
+            Vector2 pos2,
+            bool strict
+        )
         {
             var vecCenterToCenter = pos1 - pos2;
             vecCenterToCenter.X += radius1 - radius2;
@@ -137,7 +151,12 @@ namespace SharpMath2
         /// <param name="pos1">Top-left of the first circles bounding box</param>
         /// <param name="pos2">Top-left of the second circles bounding box</param>
         /// <returns></returns>
-        public static Tuple<Vector2, float> IntersectMTV(Circle2 circle1, Circle2 circle2, Vector2 pos1, Vector2 pos2)
+        public static Tuple<Vector2, float> IntersectMTV(
+            Circle2 circle1,
+            Circle2 circle2,
+            Vector2 pos1,
+            Vector2 pos2
+        )
         {
             return IntersectMTV(circle1.Radius, circle2.Radius, pos1, pos2);
         }
@@ -152,14 +171,19 @@ namespace SharpMath2
         /// <param name="pos1"></param>
         /// <param name="pos2"></param>
         /// <returns>The direction and magnitude to move pos1 to prevent intersection</returns>
-        public static Tuple<Vector2, float> IntersectMTV(float radius1, float radius2, Vector2 pos1, Vector2 pos2)
+        public static Tuple<Vector2, float> IntersectMTV(
+            float radius1,
+            float radius2,
+            Vector2 pos1,
+            Vector2 pos2
+        )
         {
             var betweenVec = pos1 - pos2;
             betweenVec.X += (radius1 - radius2);
             betweenVec.Y += (radius1 - radius2);
 
             var lengthSq = betweenVec.LengthSquared();
-            if(lengthSq < (radius1 + radius2) * (radius1 + radius2))
+            if (lengthSq < (radius1 + radius2) * (radius1 + radius2))
             {
                 var len = Math.Sqrt(lengthSq);
                 betweenVec *= (float)(1 / len);
@@ -171,7 +195,7 @@ namespace SharpMath2
 
         /// <summary>
         /// Projects the specified circle with the upper-left at the specified position onto
-        /// the specified axis. 
+        /// the specified axis.
         /// </summary>
         /// <param name="circle">The circle</param>
         /// <param name="pos">The position of the circle</param>

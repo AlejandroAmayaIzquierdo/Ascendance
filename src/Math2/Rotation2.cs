@@ -32,7 +32,7 @@ namespace SharpMath2
 
         /// <summary>
         /// Create a new rotation by specifying the theta, its cosin, and its sin.
-        /// 
+        ///
         /// Theta will be normalized to 0 &lt;= theta &lt;= 2pi
         /// </summary>
         /// <param name="theta"></param>
@@ -50,13 +50,12 @@ namespace SharpMath2
 
         /// <summary>
         /// Create a new rotation at the specified theta, calculating the cos and sin.
-        /// 
+        ///
         /// Theta will be normalized to 0 &lt;= theta &lt;= 2pi
         /// </summary>
         /// <param name="theta"></param>
-        public Rotation2(float theta) : this(theta, (float)Math.Cos(theta), (float)Math.Sin(theta))
-        {
-        }
+        public Rotation2(float theta)
+            : this(theta, (float)Math.Cos(theta), (float)Math.Sin(theta)) { }
 
         /// <summary>
         /// Determine if the two rotations have the same theta

@@ -123,7 +123,6 @@ public class World
 
     public void Update(GameTime gameTime)
     {
-        collisionManager?.Update(gameTime);
         var entitiesToUpdate = _entities.ToList();
         foreach (var entity in entitiesToUpdate)
             entity.Update(gameTime);

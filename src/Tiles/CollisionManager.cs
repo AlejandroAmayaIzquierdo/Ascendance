@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using nx.entity;
@@ -9,186 +8,191 @@ using TiledSharp;
 
 namespace nx.tile;
 
-public enum CollisionType
+public class CollisionObject
 {
-    GROUNDED,
-    WALL,
-    HEAD,
-    NONE,
+    // Posición del objeto en coordenadas de Tiled (sin escalar), usada para dibujar el debug.
+    public Vector2 position;
+    public Polygon2 shape;
+
+    // Caja envolvente en coordenadas de mundo (escaladas), usada para resolver colisiones.
+    public readonly float Left;
+    public readonly float Top;
+    public readonly float Right;
+    public readonly float Bottom;
+
+    public CollisionObject(Vector2 position, Polygon2 shape)
+    {
+        this.position = position;
+        this.shape = shape;
+
+        Vector2 origin = position * Engine.scale;
+        Left = origin.X + shape.Vertices.Min(v => v.X);
+        Right = origin.X + shape.Vertices.Max(v => v.X);
+        Top = origin.Y + shape.Vertices.Min(v => v.Y);
+        Bottom = origin.Y + shape.Vertices.Max(v => v.Y);
+    }
 }
 
-public class CollisionObject(Vector2 position, Polygon2 shape)
+public struct CollisionResult
 {
-    public Vector2 position = position;
-    public Polygon2 shape = shape;
-}
+    public bool HitLeft;
+    public bool HitRight;
+    public bool HitCeiling;
+    public bool HitFloor;
 
-public record CollisionInfo(
-    CollisionObject Object,
-    Vector2 Normal,
-    float Penetration,
-    CollisionType Type,
-    Line2 ContactLine
-);
+    public readonly bool HitWall => HitLeft || HitRight;
+}
 
 public class CollisionManager
 {
+    // Margen para que dos cajas que solo se tocan por un borde no cuenten como solapadas.
+    private const float EPSILON = 0.001f;
+
+    // Distancia máxima bajo los pies a la que se sigue considerando que la entidad está en el suelo.
+    private const float GROUND_PROBE = 0.5f;
+
     public readonly List<CollisionObject> CollisionObjects = [];
 
-    private readonly List<ICollider> _entities = [];
+    private readonly List<ICollider> _entities;
 
     public List<ICollider> Coliders => _entities;
-    private TmxObjectGroup _tmxObjectGroup;
 
     public CollisionManager(TmxObjectGroup collisionGroup, List<ICollider> coliders)
     {
-        _tmxObjectGroup = collisionGroup;
-        foreach (var o in _tmxObjectGroup.Objects)
+        _entities = coliders;
+
+        foreach (var o in collisionGroup.Objects)
         {
-            Collection<TmxObjectPoint> tmxObjectPoints = o.Points;
+            Vector2[] vertices;
 
-            if (tmxObjectPoints == null)
+            if (o.Points is not null)
+            {
+                vertices =
+                [
+                    .. o.Points.Select(p => new Vector2(
+                        (float)p.X * Engine.scale,
+                        (float)p.Y * Engine.scale
+                    )),
+                ];
+            }
+            else if (o.Width > 0 && o.Height > 0)
+            {
+                // Objetos rectangulares de Tiled (sin <polygon>).
+                float w = (float)o.Width * Engine.scale;
+                float h = (float)o.Height * Engine.scale;
+                vertices = [new(0, 0), new(w, 0), new(w, h), new(0, h)];
+            }
+            else
+            {
                 continue;
-
-            Vector2[] vertices =
-            [
-                .. tmxObjectPoints.Select(p => new Vector2(
-                    (float)p.X * Engine.scale,
-                    (float)p.Y * Engine.scale
-                )),
-            ];
+            }
 
             CollisionObjects.Add(
                 new CollisionObject(new Vector2((float)o.X, (float)o.Y), new Polygon2(vertices))
             );
-
-            _entities = coliders;
         }
     }
 
-    public void Update(GameTime gameTime)
+    /// <summary>
+    /// Mueve la caja de colisión <paramref name="hitbox"/> (relativa a <paramref name="position"/>)
+    /// según <paramref name="delta"/>, primero en X y después en Y, deteniéndola contra los
+    /// sólidos del nivel. El barrido evita atravesar plataformas aunque la velocidad sea alta.
+    /// </summary>
+    public CollisionResult Move(ref Vector2 position, Rectangle hitbox, Vector2 delta)
     {
-        foreach (var entity in _entities)
-        {
-            CollisionInfo[] collision = CheckCollisionDetailed(entity);
+        CollisionResult result = new();
 
-            if (collision.Length > 0)
-                entity.HandleCollision(collision);
+        if (delta.X != 0)
+        {
+            float moved = SweepX(position, hitbox, delta.X, out bool hit);
+            position.X += moved;
+            if (hit)
+            {
+                result.HitRight = delta.X > 0;
+                result.HitLeft = delta.X < 0;
+            }
         }
+
+        if (delta.Y != 0)
+        {
+            float moved = SweepY(position, hitbox, delta.Y, out bool hit);
+            position.Y += moved;
+            if (hit)
+            {
+                result.HitFloor = delta.Y > 0;
+                result.HitCeiling = delta.Y < 0;
+            }
+        }
+
+        return result;
     }
 
-    public CollisionInfo[] CheckCollisionDetailed(ICollider entity)
+    public bool IsOnGround(Vector2 position, Rectangle hitbox)
     {
-        var entityShape = new Polygon2(
-            [
-                new Vector2(0, 0),
-                new Vector2(entity.CollisionsBounds.Width, 0),
-                new Vector2(0, entity.CollisionsBounds.Height),
-                new Vector2(entity.CollisionsBounds.Width, entity.CollisionsBounds.Height),
-            ]
-        );
-        List<CollisionInfo> collisionInfos = [];
-        Vector2 entityPosition = new(entity.CollisionsBounds.X, entity.CollisionsBounds.Y);
-
-        foreach (var collisionObject in CollisionObjects)
-        {
-            bool intersects = Polygon2.Intersects(
-                entityShape,
-                collisionObject.shape,
-                entityPosition,
-                collisionObject.position * Engine.scale,
-                false
-            );
-
-            if (intersects)
-                collisionInfos.Add(CalculateCollisionInfo(entity, entityPosition, collisionObject));
-        }
-
-        return [.. collisionInfos];
+        SweepY(position, hitbox, GROUND_PROBE, out bool hit);
+        return hit;
     }
 
-    // Calcular información detallada de la colisión
-    private CollisionInfo CalculateCollisionInfo(
-        ICollider entity,
-        Vector2 entityPosition,
-        CollisionObject collisionObject
-    )
+    private float SweepX(Vector2 position, Rectangle hitbox, float dx, out bool hit)
     {
-        Vector2 entityCenter =
-            entityPosition
-            + new Vector2(entity.CollisionsBounds.Width / 2, entity.CollisionsBounds.Height / 2);
+        float left = position.X + hitbox.Left;
+        float right = position.X + hitbox.Right;
+        float top = position.Y + hitbox.Top;
+        float bottom = position.Y + hitbox.Bottom;
 
-        float minDistance = float.MaxValue;
-        Line2 minDistanceLine = null;
+        hit = false;
+        float allowed = dx;
 
-        // Encontrar la línea más cercana
-        foreach (Line2 line in collisionObject.shape.Lines)
+        foreach (var solid in CollisionObjects)
         {
-            float distance = Line2.Distance(
-                line,
-                collisionObject.position * Engine.scale,
-                entityCenter
-            );
-            if (distance < minDistance)
+            if (!Overlaps(top, bottom, solid.Top, solid.Bottom))
+                continue;
+
+            if (dx > 0 && solid.Left >= right - EPSILON && solid.Left - right < allowed)
             {
-                minDistance = distance;
-                minDistanceLine = line;
+                allowed = Math.Max(0, solid.Left - right);
+                hit = true;
+            }
+            else if (dx < 0 && solid.Right <= left + EPSILON && solid.Right - left > allowed)
+            {
+                allowed = Math.Min(0, solid.Right - left);
+                hit = true;
             }
         }
 
-        // Determinar tipo de colisión y normal
-        CollisionType type = CollisionType.NONE;
-        Vector2 normal = Vector2.Zero;
-
-        if (minDistanceLine.Horizontal)
-        {
-            if (entityPosition.Y <= collisionObject.position.Y * Engine.scale)
-            {
-                type = CollisionType.GROUNDED;
-                normal = new Vector2(0, -1); // Normal hacia arriba
-            }
-            else
-            {
-                type = CollisionType.HEAD;
-                normal = new Vector2(0, 1); // Normal hacia abajo
-            }
-        }
-        else if (minDistanceLine.Vertical)
-        {
-            type = CollisionType.WALL;
-            if (entityPosition.X <= collisionObject.position.X * Engine.scale)
-            {
-                normal = new Vector2(-1, 0); // Normal hacia la izquierda
-            }
-            else
-            {
-                normal = new Vector2(1, 0); // Normal hacia la derecha
-            }
-        }
-
-        return new(collisionObject, normal, minDistance, type, minDistanceLine);
+        return allowed;
     }
 
-    public static float CalculateAngleBetweenEntityAndPolygon(
-        Entity entity,
-        CollisionObject collisionPolygon
-    )
+    private float SweepY(Vector2 position, Rectangle hitbox, float dy, out bool hit)
     {
-        // Calculate the vector from the entity to the center of the collision polygon
-        Vector2 vectorToCenter = entity.Position - (collisionPolygon.position * Engine.scale);
+        float left = position.X + hitbox.Left;
+        float right = position.X + hitbox.Right;
+        float top = position.Y + hitbox.Top;
+        float bottom = position.Y + hitbox.Bottom;
 
-        // Calculate the angle in radians using Math.Atan2
-        float angleRadians = (float)Math.Atan2(vectorToCenter.Y, vectorToCenter.X);
+        hit = false;
+        float allowed = dy;
 
-        // Convert the angle from radians to degrees
-        float angleDegrees = MathHelper.ToDegrees(angleRadians);
-
-        // Ensure the angle is within the range [0, 360]
-        if (angleDegrees < 0)
+        foreach (var solid in CollisionObjects)
         {
-            angleDegrees += 360;
+            if (!Overlaps(left, right, solid.Left, solid.Right))
+                continue;
+
+            if (dy > 0 && solid.Top >= bottom - EPSILON && solid.Top - bottom < allowed)
+            {
+                allowed = Math.Max(0, solid.Top - bottom);
+                hit = true;
+            }
+            else if (dy < 0 && solid.Bottom <= top + EPSILON && solid.Bottom - top > allowed)
+            {
+                allowed = Math.Min(0, solid.Bottom - top);
+                hit = true;
+            }
         }
 
-        return angleDegrees;
+        return allowed;
     }
+
+    private static bool Overlaps(float minA, float maxA, float minB, float maxB) =>
+        minA < maxB - EPSILON && maxA > minB + EPSILON;
 }

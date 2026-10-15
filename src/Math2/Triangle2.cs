@@ -32,7 +32,7 @@ namespace SharpMath2
         public readonly Vector2 Center;
 
         /// <summary>
-        /// The edges of the triangle, where the first edge is from 
+        /// The edges of the triangle, where the first edge is from
         /// Vertices[0] to Vertices[1], etc.
         /// </summary>
         public readonly Line2[] Edges;
@@ -52,7 +52,7 @@ namespace SharpMath2
             Vertices = vertices;
 
             Vector2 vertSum = Vector2.Zero;
-            for(int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
             {
                 vertSum += vertices[i];
             }
@@ -67,17 +67,13 @@ namespace SharpMath2
             Area = Math.Abs(0.5f * det);
 
             float invDet = 1 / det;
-            InvContainsBasis = new float[4]
-            {
-                invDet * d, -invDet * b, 
-                -invDet * c, invDet * a
-            };
+            InvContainsBasis = new float[4] { invDet * d, -invDet * b, -invDet * c, invDet * a };
 
             Edges = new Line2[]
             {
                 new Line2(Vertices[0], Vertices[1]),
                 new Line2(Vertices[1], Vertices[2]),
-                new Line2(Vertices[2], Vertices[0])
+                new Line2(Vertices[2], Vertices[0]),
             };
         }
 

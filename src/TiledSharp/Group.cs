@@ -39,7 +39,16 @@ namespace TiledSharp
             ObjectGroups = new TmxList<TmxObjectGroup>();
             ImageLayers = new TmxList<TmxImageLayer>();
             Groups = new TmxList<TmxGroup>();
-            foreach (var e in xGroup.Elements().Where(x => x.Name == "layer" || x.Name == "objectgroup" || x.Name == "imagelayer" || x.Name == "group"))
+            foreach (
+                var e in xGroup
+                    .Elements()
+                    .Where(x =>
+                        x.Name == "layer"
+                        || x.Name == "objectgroup"
+                        || x.Name == "imagelayer"
+                        || x.Name == "group"
+                    )
+            )
             {
                 ITmxLayer layer;
                 switch (e.Name.LocalName)

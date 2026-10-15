@@ -26,7 +26,12 @@ namespace SharpMath2
         /// <param name="v3">Vector 3</param>
         /// <param name="epsilon">How close is close enough</param>
         /// <returns>If v1, v2, v3 is collinear</returns>
-        public static bool IsOnLine(Vector2 v1, Vector2 v2, Vector2 v3, float epsilon = DEFAULT_EPSILON)
+        public static bool IsOnLine(
+            Vector2 v1,
+            Vector2 v2,
+            Vector2 v3,
+            float epsilon = DEFAULT_EPSILON
+        )
         {
             var fromV1ToV2 = v2 - v1;
             var axis = Vector2.Normalize(fromV1ToV2);
@@ -46,7 +51,12 @@ namespace SharpMath2
         /// <param name="pt">The point to test</param>
         /// <param name="epsilon">How close is close enough (not exactly distance)</param>
         /// <returns>True if pt is on the line between v1 and v2, false otherwise</returns>
-        public static bool IsBetweenLine(Vector2 v1, Vector2 v2, Vector2 pt, float epsilon = DEFAULT_EPSILON)
+        public static bool IsBetweenLine(
+            Vector2 v1,
+            Vector2 v2,
+            Vector2 pt,
+            float epsilon = DEFAULT_EPSILON
+        )
         {
             var fromV1ToV2 = v2 - v1;
             var axis = Vector2.Normalize(fromV1ToV2);
@@ -183,8 +193,10 @@ namespace SharpMath2
             if (rotation.Theta == 0)
                 return vec;
             var tmp = vec - about;
-            return new Vector2(tmp.X * rotation.CosTheta - tmp.Y * rotation.SinTheta + about.X,
-                               tmp.X * rotation.SinTheta + tmp.Y * rotation.CosTheta + about.Y);
+            return new Vector2(
+                tmp.X * rotation.CosTheta - tmp.Y * rotation.SinTheta + about.X,
+                tmp.X * rotation.SinTheta + tmp.Y * rotation.CosTheta + about.Y
+            );
         }
 
         /// <summary>

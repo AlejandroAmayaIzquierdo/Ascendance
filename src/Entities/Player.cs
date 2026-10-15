@@ -68,7 +68,7 @@ public class Player : Entity, ICollider
     {
         velocity = new(0, 0);
         velocityGoal = 0.0f;
-        _collisionsBounds = new(Engine.TILE_SIZE / 4, 16, Engine.TILE_SIZE / 2, 16);
+        _collisionsBounds = new(Engine.TILE_SIZE / 4, 0, Engine.TILE_SIZE / 2, Engine.TILE_SIZE);
         ScreenPosition = new Vector2(
             position.X,
             Engine.screenHeight - World.worldHeight + position.Y
@@ -146,6 +146,7 @@ public class Player : Entity, ICollider
         ApplyPhysics(gameTime);
         UpdatePosition(gameTime);
         CheckWorldBounds();
+        UpdateScreenPosition();
         UpdateAnimations(gameTime);
 
         if (Position.Y < 0)
@@ -156,8 +157,6 @@ public class Player : Entity, ICollider
         {
             Engine.World!.PreviousLevel();
         }
-
-        isGrounded = false;
 
         base.Update(gameTime);
     }
@@ -202,59 +201,46 @@ public class Player : Entity, ICollider
         UpdateGravity(gameTime);
     }
 
-    public void HandleCollision(CollisionInfo[] collisions)
-    {
-        isGrounded = false;
-        foreach (var collision in collisions)
-        {
-            var collisionObject = collision.Object;
-
-            switch (collision.Type)
-            {
-                case CollisionType.GROUNDED:
-                    isGrounded = true;
-                    velocity.Y = 0;
-                    Position.Y =
-                        (collisionObject.position.Y * Engine.scale)
-                        - _collisionsBounds.Height
-                        - _collisionsBounds.Y;
-                    break;
-                case CollisionType.HEAD:
-                    velocity.Y = 0;
-                    Position += collision.Normal;
-                    break;
-                case CollisionType.WALL:
-                    ChangeDirection();
-                    Position += collision.Normal;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
     private void CheckWorldBounds()
     {
-        if (Position.X < 0)
+        if (Position.X + _collisionsBounds.Left < 0)
         {
-            Position.X = 0;
-            ScreenPosition.X = 0;
-            ChangeDirection();
+            Position.X = -_collisionsBounds.Left;
+            HitWall();
         }
-        else if (Position.X >= Engine.screenWidth - _collisionsBounds.Width)
+        else if (Position.X + _collisionsBounds.Right > Engine.screenWidth)
         {
-            Position.X = Engine.screenWidth - _collisionsBounds.Width;
-            ScreenPosition.X = Engine.screenWidth - _collisionsBounds.Width;
-            ChangeDirection();
+            Position.X = Engine.screenWidth - _collisionsBounds.Right;
+            HitWall();
         }
     }
 
     private void UpdatePosition(GameTime gameTime)
     {
         float realSpeed = SPEED * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        Vector2 delta = new(velocity.X * realSpeed, velocity.Y);
 
-        Position += new Vector2(velocity.X * realSpeed, velocity.Y);
+        CollisionManager? collisions = Engine.World?.collisionManager;
+        if (collisions is null)
+        {
+            Position += delta;
+            return;
+        }
 
+        CollisionResult result = collisions.Move(ref Position, _collisionsBounds, delta);
+
+        if (result.HitWall)
+            HitWall();
+
+        if (result.HitCeiling || result.HitFloor)
+            velocity.Y = 0;
+
+        // Solo se está en el suelo si no se está subiendo y hay un sólido justo bajo los pies.
+        isGrounded = velocity.Y >= 0 && collisions.IsOnGround(Position, _collisionsBounds);
+    }
+
+    private void UpdateScreenPosition()
+    {
         ScreenPosition.X = Engine.screenWidth - World.worldWidth + Position.X;
 
         if (Position.Y >= World.worldHeight - Engine.SCREEN_CENTER_Y - Engine.TILE_SIZE)
@@ -315,13 +301,23 @@ public class Player : Entity, ICollider
         timeOfJumpHeight += (float)gameTime.ElapsedGameTime.TotalSeconds;
     }
 
+    private void HitWall()
+    {
+        // En el aire rebota contra la pared; en el suelo simplemente se detiene.
+        if (isGrounded)
+            velocity.X = 0;
+        else
+            ChangeDirection();
+    }
+
     private void ChangeDirection()
     {
         velocityGoal *= DECREES_VELOCITY_FACTOR;
         velocity.X *= -1;
-        if (animations.isFlip())
+
+        if (velocity.X > 0)
             animations.Flip(SpriteEffects.None);
-        else
+        else if (velocity.X < 0)
             animations.Flip(SpriteEffects.FlipHorizontally);
     }
 }

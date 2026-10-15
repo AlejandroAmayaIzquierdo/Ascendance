@@ -66,11 +66,15 @@ namespace SharpMath2
         public Rect2(Vector2 min, Vector2 max)
         {
             float area = (max.X - min.X) * (max.Y - min.Y);
-            if(area > -Math2.DEFAULT_EPSILON && area < Math2.DEFAULT_EPSILON)
-                throw new ArgumentException($"min={min}, max={max} - that's a line or a point, not a box (area below epsilon {Math2.DEFAULT_EPSILON} (got {area}))");
+            if (area > -Math2.DEFAULT_EPSILON && area < Math2.DEFAULT_EPSILON)
+                throw new ArgumentException(
+                    $"min={min}, max={max} - that's a line or a point, not a box (area below epsilon {Math2.DEFAULT_EPSILON} (got {area}))"
+                );
 
-            float tmpX1 = min.X, tmpX2 = max.X;
-            float tmpY1 = min.Y, tmpY2 = max.Y;
+            float tmpX1 = min.X,
+                tmpX2 = max.X;
+            float tmpY1 = min.Y,
+                tmpY2 = max.Y;
 
             min.X = Math.Min(tmpX1, tmpX2);
             min.Y = Math.Min(tmpY1, tmpY2);
@@ -79,7 +83,10 @@ namespace SharpMath2
 
             Vertices = new Vector2[]
             {
-                min, new Vector2(max.X, min.Y), max, new Vector2(min.X, max.Y)
+                min,
+                new Vector2(max.X, min.Y),
+                max,
+                new Vector2(min.X, max.Y),
             };
 
             Center = new Vector2((Min.X + Max.X) / 2, (Min.Y + Max.Y) / 2);
@@ -95,9 +102,8 @@ namespace SharpMath2
         /// <param name="minY">Min or max y (different from maxY)</param>
         /// <param name="maxX">Min or max x (different from minX)</param>
         /// <param name="maxY">Min or max y (different from minY)</param>
-        public Rect2(float minX, float minY, float maxX, float maxY) : this(new Vector2(minX, minY), new Vector2(maxX, maxY))
-        {
-        }
+        public Rect2(float minX, float minY, float maxX, float maxY)
+            : this(new Vector2(minX, minY), new Vector2(maxX, maxY)) { }
 
         /// <summary>
         /// Determines if box1 with origin pos1 intersects box2 with origin pos2.
@@ -108,10 +114,30 @@ namespace SharpMath2
         /// <param name="pos2">Origin of box 2</param>
         /// <param name="strict">If overlap is required for intersection</param>
         /// <returns>If box1 intersects box2 when box1 is at pos1 and box2 is at pos2</returns>
-        public static bool Intersects(Rect2 box1, Rect2 box2, Vector2 pos1, Vector2 pos2, bool strict)
+        public static bool Intersects(
+            Rect2 box1,
+            Rect2 box2,
+            Vector2 pos1,
+            Vector2 pos2,
+            bool strict
+        )
         {
-            return AxisAlignedLine2.Intersects(box1.Min.X + pos1.X, box1.Max.X + pos1.X, box2.Min.X + pos2.X, box2.Max.X + pos2.X, strict, false)
-                && AxisAlignedLine2.Intersects(box1.Min.Y + pos1.Y, box1.Max.Y + pos1.Y, box2.Min.Y + pos2.Y, box2.Max.Y + pos2.Y, strict, false);
+            return AxisAlignedLine2.Intersects(
+                    box1.Min.X + pos1.X,
+                    box1.Max.X + pos1.X,
+                    box2.Min.X + pos2.X,
+                    box2.Max.X + pos2.X,
+                    strict,
+                    false
+                )
+                && AxisAlignedLine2.Intersects(
+                    box1.Min.Y + pos1.Y,
+                    box1.Max.Y + pos1.Y,
+                    box2.Min.Y + pos2.Y,
+                    box2.Max.Y + pos2.Y,
+                    strict,
+                    false
+                );
         }
 
         /// <summary>
@@ -124,8 +150,20 @@ namespace SharpMath2
         /// <returns>If the box at pos contains point</returns>
         public static bool Contains(Rect2 box, Vector2 pos, Vector2 point, bool strict)
         {
-            return AxisAlignedLine2.Contains(box.Min.X + pos.X, box.Max.X + pos.X, point.X, strict, false)
-                && AxisAlignedLine2.Contains(box.Min.Y + pos.Y, box.Max.Y + pos.Y, point.Y, strict, false);
+            return AxisAlignedLine2.Contains(
+                    box.Min.X + pos.X,
+                    box.Max.X + pos.X,
+                    point.X,
+                    strict,
+                    false
+                )
+                && AxisAlignedLine2.Contains(
+                    box.Min.Y + pos.Y,
+                    box.Max.Y + pos.Y,
+                    point.Y,
+                    strict,
+                    false
+                );
         }
 
         /// <summary>
@@ -137,9 +175,16 @@ namespace SharpMath2
         /// <param name="posInner">where the inner box is located</param>
         /// <param name="strict">true to return false if innerBox touches an edge of outerBox, false otherwise</param>
         /// <returns>true if innerBox is contained in outerBox, false otherwise</returns>
-        public static bool Contains(Rect2 outerBox, Rect2 innerBox, Vector2 posOuter, Vector2 posInner, bool strict)
+        public static bool Contains(
+            Rect2 outerBox,
+            Rect2 innerBox,
+            Vector2 posOuter,
+            Vector2 posInner,
+            bool strict
+        )
         {
-            return Contains(outerBox, posOuter, innerBox.Min + posInner, strict) && Contains(outerBox, posOuter, innerBox.Max + posInner, strict);
+            return Contains(outerBox, posOuter, innerBox.Min + posInner, strict)
+                && Contains(outerBox, posOuter, innerBox.Max + posInner, strict);
         }
 
         /// <summary>
@@ -151,7 +196,13 @@ namespace SharpMath2
         /// <param name="polyPos">Where the polygon is located</param>
         /// <param name="strict">true if we return false if the any part of the polygon is on the edge, false otherwise</param>
         /// <returns>true if the poly is contained in box, false otherwise</returns>
-        public static bool Contains(Rect2 box, Polygon2 poly, Vector2 boxPos, Vector2 polyPos, bool strict)
+        public static bool Contains(
+            Rect2 box,
+            Polygon2 poly,
+            Vector2 boxPos,
+            Vector2 polyPos,
+            bool strict
+        )
         {
             return Contains(box, poly.AABB, boxPos, polyPos, strict);
         }

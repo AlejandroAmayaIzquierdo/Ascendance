@@ -11,40 +11,41 @@ namespace TiledSharp
 {
     public class TmxObjectGroup : ITmxLayer
     {
-        public string Name {get; private set;}
+        public string Name { get; private set; }
 
         // TODO: Legacy (Tiled Java) attributes (x, y, width, height)
 
-        public TmxColor Color {get; private set;}
-        public DrawOrderType DrawOrder {get; private set;}
+        public TmxColor Color { get; private set; }
+        public DrawOrderType DrawOrder { get; private set; }
 
-        public double Opacity {get; private set;}
-        public bool Visible {get; private set;}
-        public double OffsetX {get; private set;}
-        public double OffsetY {get; private set;}
+        public double Opacity { get; private set; }
+        public bool Visible { get; private set; }
+        public double OffsetX { get; private set; }
+        public double OffsetY { get; private set; }
 
-        public TmxList<TmxObject> Objects {get; private set;}
-        public PropertyDict Properties {get; private set;}
+        public TmxList<TmxObject> Objects { get; private set; }
+        public PropertyDict Properties { get; private set; }
 
         double? ITmxLayer.OffsetX => OffsetX;
         double? ITmxLayer.OffsetY => OffsetY;
 
         public TmxObjectGroup(XElement xObjectGroup)
         {
-            Name = (string) xObjectGroup.Attribute("name") ?? String.Empty;
+            Name = (string)xObjectGroup.Attribute("name") ?? String.Empty;
             Color = new TmxColor(xObjectGroup.Attribute("color"));
-            Opacity = (double?) xObjectGroup.Attribute("opacity") ?? 1.0;
-            Visible = (bool?) xObjectGroup.Attribute("visible") ?? true;
-            OffsetX = (double?) xObjectGroup.Attribute("offsetx") ?? 0.0;
-            OffsetY = (double?) xObjectGroup.Attribute("offsety") ?? 0.0;
+            Opacity = (double?)xObjectGroup.Attribute("opacity") ?? 1.0;
+            Visible = (bool?)xObjectGroup.Attribute("visible") ?? true;
+            OffsetX = (double?)xObjectGroup.Attribute("offsetx") ?? 0.0;
+            OffsetY = (double?)xObjectGroup.Attribute("offsety") ?? 0.0;
 
-            var drawOrderDict = new Dictionary<string, DrawOrderType> {
-                {"unknown", DrawOrderType.UnknownOrder},
-                {"topdown", DrawOrderType.TopDown},
-                {"index", DrawOrderType.IndexOrder}
+            var drawOrderDict = new Dictionary<string, DrawOrderType>
+            {
+                { "unknown", DrawOrderType.UnknownOrder },
+                { "topdown", DrawOrderType.TopDown },
+                { "index", DrawOrderType.IndexOrder },
             };
 
-            var drawOrderValue = (string) xObjectGroup.Attribute("draworder");
+            var drawOrderValue = (string)xObjectGroup.Attribute("draworder");
             if (drawOrderValue != null)
                 DrawOrder = drawOrderDict[drawOrderValue];
 
@@ -60,21 +61,21 @@ namespace TiledSharp
     {
         // Many TmxObjectTypes are distinguished by null values in fields
         // It might be smart to subclass TmxObject
-        public int Id {get; private set;}
-        public string Name {get; private set;}
-        public TmxObjectType ObjectType {get; private set;}
-        public string Type {get; private set;}
-        public double X {get; private set;}
-        public double Y {get; private set;}
-        public double Width {get; private set;}
-        public double Height {get; private set;}
-        public double Rotation {get; private set;}
-        public TmxLayerTile Tile {get; private set;}
-        public bool Visible {get; private set;}
+        public int Id { get; private set; }
+        public string Name { get; private set; }
+        public TmxObjectType ObjectType { get; private set; }
+        public string Type { get; private set; }
+        public double X { get; private set; }
+        public double Y { get; private set; }
+        public double Width { get; private set; }
+        public double Height { get; private set; }
+        public double Rotation { get; private set; }
+        public TmxLayerTile Tile { get; private set; }
+        public bool Visible { get; private set; }
         public TmxText Text { get; private set; }
 
-        public Collection<TmxObjectPoint> Points {get; private set;}
-        public PropertyDict Properties {get; private set;}
+        public Collection<TmxObjectPoint> Points { get; private set; }
+        public PropertyDict Properties { get; private set; }
 
         public TmxObject(XElement xObject)
         {
@@ -99,9 +100,11 @@ namespace TiledSharp
 
             if (xGid != null)
             {
-                Tile = new TmxLayerTile((uint)xGid,
+                Tile = new TmxLayerTile(
+                    (uint)xGid,
                     Convert.ToInt32(Math.Round(X)),
-                    Convert.ToInt32(Math.Round(Y)));
+                    Convert.ToInt32(Math.Round(Y))
+                );
                 ObjectType = TmxObjectType.Tile;
             }
             else if (xEllipse != null)
@@ -118,7 +121,8 @@ namespace TiledSharp
                 Points = ParsePoints(xPolyline);
                 ObjectType = TmxObjectType.Polyline;
             }
-            else ObjectType = TmxObjectType.Basic;
+            else
+                ObjectType = TmxObjectType.Basic;
 
             var xText = xObject.Element("text");
             if (xText != null)
@@ -146,8 +150,8 @@ namespace TiledSharp
 
     public class TmxObjectPoint
     {
-        public double X {get; private set;}
-        public double Y {get; private set;}
+        public double X { get; private set; }
+        public double Y { get; private set; }
 
         public TmxObjectPoint(double x, double y)
         {
@@ -158,10 +162,8 @@ namespace TiledSharp
         public TmxObjectPoint(string s)
         {
             var pt = s.Split(',');
-            X = double.Parse(pt[0], NumberStyles.Float,
-                             CultureInfo.InvariantCulture);
-            Y = double.Parse(pt[1], NumberStyles.Float,
-                             CultureInfo.InvariantCulture);
+            X = double.Parse(pt[0], NumberStyles.Float, CultureInfo.InvariantCulture);
+            Y = double.Parse(pt[1], NumberStyles.Float, CultureInfo.InvariantCulture);
         }
     }
 
@@ -203,12 +205,12 @@ namespace TiledSharp
         public TmxAlignment(XAttribute halign, XAttribute valign)
         {
             var xHorizontal = (string)halign ?? "Left";
-            Horizontal = (TmxHorizontalAlignment)Enum.Parse(typeof(TmxHorizontalAlignment),
-                FirstLetterToUpperCase(xHorizontal));
+            Horizontal = (TmxHorizontalAlignment)
+                Enum.Parse(typeof(TmxHorizontalAlignment), FirstLetterToUpperCase(xHorizontal));
 
             var xVertical = (string)valign ?? "Top";
-            Vertical = (TmxVerticalAlignment)Enum.Parse(typeof(TmxVerticalAlignment),
-                FirstLetterToUpperCase(xVertical));
+            Vertical = (TmxVerticalAlignment)
+                Enum.Parse(typeof(TmxVerticalAlignment), FirstLetterToUpperCase(xVertical));
         }
 
         private string FirstLetterToUpperCase(string str)
@@ -227,14 +229,14 @@ namespace TiledSharp
         Tile,
         Ellipse,
         Polygon,
-        Polyline
+        Polyline,
     }
 
     public enum DrawOrderType
     {
         UnknownOrder = -1,
         TopDown,
-        IndexOrder
+        IndexOrder,
     }
 
     public enum TmxHorizontalAlignment
@@ -242,13 +244,13 @@ namespace TiledSharp
         Left,
         Center,
         Right,
-        Justify
+        Justify,
     }
 
     public enum TmxVerticalAlignment
     {
         Top,
         Center,
-        Bottom
+        Bottom,
     }
 }

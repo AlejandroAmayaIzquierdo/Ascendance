@@ -13,27 +13,32 @@ namespace SharpMath2
         /// Two segments with different slopes which do not intersect
         /// </summary>
         NonParallelNone,
+
         /// <summary>
-        /// Two segments with different slopes which intersect at a 
+        /// Two segments with different slopes which intersect at a
         /// single point.
         /// </summary>
         NonParallelPoint,
+
         /// <summary>
         /// Two parallel but not coincident segments. These never intersect
         /// </summary>
         ParallelNone,
+
         /// <summary>
         /// Two coincident segments which do not intersect
         /// </summary>
         CoincidentNone,
+
         /// <summary>
         /// Two coincident segments which intersect at a point
         /// </summary>
         CoincidentPoint,
+
         /// <summary>
         /// Two coincident segments which intersect on infinitely many points
         /// </summary>
-        CoincidentLine
+        CoincidentLine,
     }
 
     /// <summary>
@@ -80,6 +85,7 @@ namespace SharpMath2
         /// Min x
         /// </summary>
         public readonly float MinX;
+
         /// <summary>
         /// Min y
         /// </summary>
@@ -123,11 +129,12 @@ namespace SharpMath2
         public Line2(Vector2 start, Vector2 end)
         {
             if (Math2.Approximately(start, end))
-                throw new ArgumentException($"start is approximately end - that's a point, not a line. start={start}, end={end}");
+                throw new ArgumentException(
+                    $"start is approximately end - that's a point, not a line. start={start}, end={end}"
+                );
 
             Start = start;
             End = end;
-
 
             Delta = End - Start;
             Axis = Vector2.Normalize(Delta);
@@ -170,7 +177,7 @@ namespace SharpMath2
             return (
                 Math2.Approximately(line1.Axis, line2.Axis)
                 || Math2.Approximately(line1.Axis, -line2.Axis)
-                );
+            );
         }
 
         /// <summary>
@@ -199,12 +206,12 @@ namespace SharpMath2
             // The horizontal/vertical checks are not required but are
             // very fast to calculate and short-circuit the common case
             // (false) very quickly
-            if(line.Horizontal)
+            if (line.Horizontal)
             {
                 return Math2.Approximately(line.Start.Y + pos.Y, pt.Y)
                     && AxisAlignedLine2.Contains(line.MinX, line.MaxX, pt.X - pos.X, false, false);
             }
-            if(line.Vertical)
+            if (line.Vertical)
             {
                 return Math2.Approximately(line.Start.X + pos.X, pt.X)
                     && AxisAlignedLine2.Contains(line.MinY, line.MaxY, pt.Y - pos.Y, false, false);
@@ -216,7 +223,7 @@ namespace SharpMath2
 
             // Our line at the origin is just the infinite line with slope
             // Axis. We can form an orthonormal basis of R2 as (Axis, Normal).
-            // Hence we can write pt = line_part * Axis + normal_part * Normal. 
+            // Hence we can write pt = line_part * Axis + normal_part * Normal.
             // where line_part and normal_part are floats. If the normal_part
             // is 0, then pt = line_part * Axis, hence the point is on the
             // infinite line.
@@ -234,13 +241,13 @@ namespace SharpMath2
                 return false;
 
             float axisPart = Math2.Dot(pt - lineStart, line.Axis);
-            return axisPart > -Math2.DEFAULT_EPSILON 
+            return axisPart > -Math2.DEFAULT_EPSILON
                 && axisPart < line.Magnitude + Math2.DEFAULT_EPSILON;
         }
 
         private static unsafe void FindSortedOverlap(float* projs, bool* isFromLine1)
         {
-            // ascending insertion sort while simultaneously updating 
+            // ascending insertion sort while simultaneously updating
             // isFromLine1
             for (int i = 0; i < 3; i++)
             {
@@ -272,23 +279,24 @@ namespace SharpMath2
         /// <param name="pos1">The offset for the first line</param>
         /// <param name="pos2">The offset for the second line</param>
         /// <returns>The type of intersection</returns>
-        public static unsafe LineInterType CheckCoincidentIntersectionType(Line2 a, Line2 b, Vector2 pos1, Vector2 pos2)
+        public static unsafe LineInterType CheckCoincidentIntersectionType(
+            Line2 a,
+            Line2 b,
+            Vector2 pos1,
+            Vector2 pos2
+        )
         {
             Vector2 relOrigin = a.Start + pos1;
 
-            float* projs = stackalloc float[4] {
+            float* projs = stackalloc float[4]
+            {
                 0,
                 a.Magnitude,
                 Math2.Dot((b.Start + pos2) - relOrigin, a.Axis),
-                Math2.Dot((b.End + pos2) - relOrigin, a.Axis)
+                Math2.Dot((b.End + pos2) - relOrigin, a.Axis),
             };
 
-            bool* isFromLine1 = stackalloc bool[4] {
-                true,
-                true,
-                false,
-                false
-            };
+            bool* isFromLine1 = stackalloc bool[4] { true, true, false, false };
 
             FindSortedOverlap(projs, isFromLine1);
 
@@ -300,7 +308,7 @@ namespace SharpMath2
         }
 
         /// <summary>
-        /// Determines if line1 intersects line2, when line1 is offset by pos1 and line2 
+        /// Determines if line1 intersects line2, when line1 is offset by pos1 and line2
         /// is offset by pos2.
         /// </summary>
         /// <param name="line1">Line 1</param>
@@ -309,7 +317,13 @@ namespace SharpMath2
         /// <param name="pos2">Origin of line 2</param>
         /// <param name="strict">If overlap is required for intersection</param>
         /// <returns>If line1 intersects line2</returns>
-        public static unsafe bool Intersects(Line2 line1, Line2 line2, Vector2 pos1, Vector2 pos2, bool strict)
+        public static unsafe bool Intersects(
+            Line2 line1,
+            Line2 line2,
+            Vector2 pos1,
+            Vector2 pos2,
+            bool strict
+        )
         {
             if (Parallel(line1, line2))
             {
@@ -340,7 +354,14 @@ namespace SharpMath2
         /// <param name="strict">True if we should return true if pt is on an edge of a line as well
         /// as in the middle of the line. False to return true only if pt is really within the lines</param>
         /// <returns>True if both segments contain the pt, false otherwise</returns>
-        public static unsafe bool GetIntersection(Line2 line1, Line2 line2, Vector2 pos1, Vector2 pos2, bool strict, out Vector2 pt)
+        public static unsafe bool GetIntersection(
+            Line2 line1,
+            Line2 line2,
+            Vector2 pos1,
+            Vector2 pos2,
+            bool strict,
+            out Vector2 pt
+        )
         {
             // The infinite lines intersect at exactly one point. The segments intersect
             // if they both contain that point. We will treat the lines as first-degree
@@ -359,9 +380,7 @@ namespace SharpMath2
             float det = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
             // we assume det != 0 (lines not parallel)
 
-            var t = (
-                ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / det
-            );
+            var t = (((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / det);
 
             pt = new Vector2(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t);
 
@@ -371,9 +390,7 @@ namespace SharpMath2
             if (t < min || t > max)
                 return false;
 
-            float u = -(
-                ((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / det
-            );
+            float u = -(((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / det);
             return u >= min && u <= max;
         }
 
@@ -395,7 +412,13 @@ namespace SharpMath2
         /// <param name="overlap">Set to null or the line of overlap</param>
         /// <returns>True if a and b overlap at infinitely many points,
         /// false otherwise</returns>
-        public static unsafe bool LineOverlap(Line2 a, Line2 b, Vector2 pos1, Vector2 pos2, out Line2 overlap)
+        public static unsafe bool LineOverlap(
+            Line2 a,
+            Line2 b,
+            Vector2 pos1,
+            Vector2 pos2,
+            out Line2 overlap
+        )
         {
             if (!Parallel(a, b))
             {
@@ -410,19 +433,15 @@ namespace SharpMath2
 
             Vector2 relOrigin = a.Start + pos1;
 
-            float* projs = stackalloc float[4] {
+            float* projs = stackalloc float[4]
+            {
                 0,
                 a.Magnitude,
                 Math2.Dot((b.Start + pos2) - relOrigin, a.Axis),
-                Math2.Dot((b.End + pos2) - relOrigin, a.Axis)
+                Math2.Dot((b.End + pos2) - relOrigin, a.Axis),
             };
 
-            bool* isFromLine1 = stackalloc bool[4] {
-                true,
-                true,
-                false,
-                false
-            };
+            bool* isFromLine1 = stackalloc bool[4] { true, true, false, false };
 
             FindSortedOverlap(projs, isFromLine1);
 
@@ -440,10 +459,7 @@ namespace SharpMath2
                 return false;
             }
 
-            overlap = new Line2(
-                relOrigin + projs[1] * a.Axis,
-                relOrigin + projs[2] * a.Axis
-            );
+            overlap = new Line2(relOrigin + projs[1] * a.Axis, relOrigin + projs[2] * a.Axis);
             return true;
         }
 
@@ -458,7 +474,7 @@ namespace SharpMath2
         public static float Distance(Line2 line, Vector2 pos, Vector2 pt)
         {
             // As is typical for this type of question, we will solve along
-            // the line treated as a linear space (which requires shifting 
+            // the line treated as a linear space (which requires shifting
             // so the line goes through the origin). We will use that to find
             // the nearest point on the line to the given pt, then just
             // calculate the distance normally.

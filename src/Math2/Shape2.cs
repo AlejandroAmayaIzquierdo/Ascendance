@@ -675,7 +675,7 @@ namespace SharpMath2
         /// <param name="pos">The offset for the points</param>
         /// <param name="points">The points in the convex polygon</param>
         /// <returns>The projectino of the polygon comprised of points at pos along axis</returns>
-        protected unsafe static AxisAlignedLine2 ProjectAlongAxis(
+        protected static unsafe AxisAlignedLine2 ProjectAlongAxis(
             Vector2 axis,
             Vector2 pos,
             Vector2[] points

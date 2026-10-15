@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-
 #if !NOT_MONOGAME
 using Microsoft.Xna.Framework.Graphics;
 #endif
@@ -17,17 +16,20 @@ namespace SharpMath2
         /// <summary>
         /// A dictionary containing the circle shapes.
         /// </summary>
-        private static Dictionary<Tuple<float, float, float, float>, Polygon2> CircleCache = new Dictionary<Tuple<float, float, float, float>, Polygon2>();
+        private static Dictionary<Tuple<float, float, float, float>, Polygon2> CircleCache =
+            new Dictionary<Tuple<float, float, float, float>, Polygon2>();
 
         /// <summary>
         /// A dictionary containing the rectangle shapes.
         /// </summary>
-        private static Dictionary<Tuple<float, float, float, float>, Polygon2> RectangleCache = new Dictionary<Tuple<float, float, float, float>, Polygon2>();
+        private static Dictionary<Tuple<float, float, float, float>, Polygon2> RectangleCache =
+            new Dictionary<Tuple<float, float, float, float>, Polygon2>();
 
         /// <summary>
         /// A dictionary containing the convex polygon shapes.
         /// </summary>
-        private static Dictionary<int, Polygon2> ConvexPolygonCache = new Dictionary<int, Polygon2>();
+        private static Dictionary<int, Polygon2> ConvexPolygonCache =
+            new Dictionary<int, Polygon2>();
 
 #if !NOT_MONOGAME
         /// <summary>
@@ -47,24 +49,18 @@ namespace SharpMath2
             var Points = new List<Vector2>();
 
             for (var i = 0; i < Texture.Width; i++)
-                for (var j = 0; j < Texture.Height; j++)
-                    if (uints[j * Texture.Width + i] != 0)
-                        Points.Add(new Vector2(i, j));
+            for (var j = 0; j < Texture.Height; j++)
+                if (uints[j * Texture.Width + i] != 0)
+                    Points.Add(new Vector2(i, j));
 
             if (Points.Count <= 2)
                 throw new Exception("Can not create a convex hull from a line.");
 
-            int n = Points.Count, k = 0;
-            var h = new List<Vector2>(
-                new Vector2[2 * n]
-            );
+            int n = Points.Count,
+                k = 0;
+            var h = new List<Vector2>(new Vector2[2 * n]);
 
-            Points.Sort(
-                (a, b) =>
-                a.X == b.X ?
-                     a.Y.CompareTo(b.Y)
-                : (a.X > b.X ? 1 : -1)
-             );
+            Points.Sort((a, b) => a.X == b.X ? a.Y.CompareTo(b.Y) : (a.X > b.X ? 1 : -1));
 
             for (var i = 0; i < n; ++i)
             {
@@ -112,12 +108,15 @@ namespace SharpMath2
             if (RectangleCache.ContainsKey(Key))
                 return RectangleCache[Key];
 
-            return RectangleCache[Key] = new Polygon2(new[] {
-                 new Vector2(x, y),
-                 new Vector2(x + width, y),
-                 new Vector2(x + width, y + height),
-                 new Vector2(x, y + height)
-            });
+            return RectangleCache[Key] = new Polygon2(
+                new[]
+                {
+                    new Vector2(x, y),
+                    new Vector2(x + width, y),
+                    new Vector2(x + width, y + height),
+                    new Vector2(x, y + height),
+                }
+            );
         }
 
         /// <summary>
@@ -130,7 +129,12 @@ namespace SharpMath2
         /// <param name="y">The Y center of the circle.</param>
         /// <param name="segments">The amount of segments (more segments equals higher detailed circle)</param>
         /// <returns>A circle with the given radius, center, and segments, as a polygon2 shape.</returns>
-        public static Polygon2 CreateCircle(float radius, float x = 0, float y = 0, int segments = 32)
+        public static Polygon2 CreateCircle(
+            float radius,
+            float x = 0,
+            float y = 0,
+            int segments = 32
+        )
         {
             var Key = new Tuple<float, float, float, float>(radius, x, y, segments);
 
@@ -145,26 +149,21 @@ namespace SharpMath2
             Vector2 correction = new Vector2(radius, radius);
             for (var i = 0; i < segments; i++)
             {
-                Vector2 vert = radius * new Vector2(
-                        (float)Math.Cos(theta),
-                        (float)Math.Sin(theta)
-                    );
+                Vector2 vert = radius * new Vector2((float)Math.Cos(theta), (float)Math.Sin(theta));
 
                 if (vert.X < correction.X)
                     correction.X = vert.X;
                 if (vert.Y < correction.Y)
                     correction.Y = vert.Y;
 
-                verts.Add(
-                    Center + vert
-                );
+                verts.Add(Center + vert);
                 theta += increment;
             }
 
             correction.X += radius;
             correction.Y += radius;
 
-            for(var i = 0; i < segments; i++)
+            for (var i = 0; i < segments; i++)
             {
                 verts[i] -= correction;
             }

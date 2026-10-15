@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+
 public class FrameCounter
 {
     public long TotalFrames { get; private set; }
